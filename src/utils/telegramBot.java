@@ -1,0 +1,118 @@
+package utils;
+
+import javax.net.ssl.HttpsURLConnection;
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
+/**
+ * The type Telegram bot.
+ */
+public class telegramBot {
+
+    private static String TOKEN;
+
+    /**
+     * Instantiates a new Telegram bot.
+     *
+     * @param token the token
+     */
+    public telegramBot(String token) {
+        TOKEN = token;
+
+    }
+
+    /**
+     * Send message.
+     *
+     * @param chat_id the chat id
+     * @param text    the text
+     * @param send    the send
+     */
+    public static void sendMessage(String chat_id, String text, boolean send) {
+        if (chat_id.equals("")) return;
+        String data = "{\"chat_id\":\"" + chat_id + "\",\"text\":\"" + text + "\",\"parse_mode\":\"Markdown\"}";
+        if (send) {
+            if (TOKEN.equals("")) throw new NullPointerException("Telegram BotToken must not be Null");
+            httpPost(data, "sendMessage", true);
+        } else
+            System.out.println(data);
+    }
+
+    /**
+     * Function to Push the Content of the given Data to ioBroker
+     *
+     * @param Data       The Data
+     * @param methodname The Method Name
+     * @param send       If the Message should be send
+     */
+    private static void httpPost(String Data, String methodname, boolean send) {
+        //JSON Body, with Informations IFTTT can use and you can use to Modify the Push-Notification
+
+        //Nachricht senden, wenn sie gesendet werden soll
+        if (send) {
+            int trys = 1;
+            do {
+                try {
+                    //URL erstellen, HTTP Post mit übergebenen Daten durchführen
+                    URL url = new URL("https://api.telegram.org/bot" + TOKEN + "/" + methodname);
+                    HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+                    conn.setConnectTimeout(5000);
+                    conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                    conn.setDoOutput(true);
+                    conn.setDoInput(true);
+                    conn.setRequestMethod("POST");
+
+                    OutputStream os = conn.getOutputStream();
+                    os.write(Data.getBytes(StandardCharsets.UTF_8));
+
+                    //Antwortnachricht lesen
+                    InputStream in = new BufferedInputStream(conn.getInputStream());
+                    String result = convertStreamToString(in);
+                    System.out.println(result);
+                    //TODO Was ist mit der Response? Evtl. Fehlercode?
+
+                    os.close();
+                    conn.disconnect();
+                    trys = 0;
+                } catch (Exception e) {
+                    if (trys > 1)
+                        System.err.println("Failed to send Message. Probably to long?");
+                    trys++;
+                }
+            } while (trys > 0 && trys < 3);
+        }
+
+
+    }
+
+    //Konvertiert die Eingabe eines InputStreams in einen String und gibt ihn zurück
+    private static String convertStreamToString(InputStream is)
+            throws IOException {
+            /*
+             * To convert the InputStream to String we use the
+             * Reader.read(char[] buffer) method. We iterate until the
+    35.         * Reader return -1 which means there's no more data to
+    36.         * read. We use the StringWriter class to produce the string.
+    37.         */
+        if (is != null) {
+            Writer writer = new StringWriter();
+
+            char[] buffer = new char[1024];
+            try {
+                Reader reader = new BufferedReader(
+                        new InputStreamReader(is, StandardCharsets.UTF_8));
+                int n;
+                while ((n = reader.read(buffer)) != -1) {
+                    writer.write(buffer, 0, n);
+                }
+            } finally {
+                is.close();
+            }
+            return writer.toString();
+        } else {
+            return "";
+        }
+    }
+
+}
