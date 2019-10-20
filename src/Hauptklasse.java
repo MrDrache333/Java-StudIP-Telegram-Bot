@@ -22,20 +22,20 @@ public class Hauptklasse {
     /**
      * The constant currentUni.
      */
-    public static Uni currentUni;     //Aktuelle Uni
+    static Uni currentUni;     //Aktuelle Uni
     /**
      * The constant studIPHomePage.
      */
-    public static URL studIPHomePage;
+    static URL studIPHomePage;
 
     /**
      * The constant currentUser.
      */
-    public static User currentUser;
+    static User currentUser;
     /**
      * The constant webClient.
      */
-    public static WebClient webClient;
+    static WebClient webClient;
     /**
      * The constant stage.
      */
@@ -44,9 +44,9 @@ public class Hauptklasse {
     /**
      * The constant programSettings.
      */
-    public static Settings programSettings = new Settings(new File("config.xml"), true);
-    public static Settings blacklist = new Settings(new File("blacklist.stud"), false);
-    public static Settings filelist = new Settings(new File("filelist.stud"), false);
+    private static Settings programSettings = new Settings(new File("config.xml"), true);
+    private static Settings blacklist = new Settings(new File("blacklist.stud"), false);
+    private static Settings filelist = new Settings(new File("filelist.stud"), false);
     /**
      * The constant programStorage.
      */
@@ -54,7 +54,7 @@ public class Hauptklasse {
     /**
      * The constant TESTING.
      */
-    public static boolean TESTING = false;
+    private static boolean TESTING = false;
     private static telegramBot TelegramBot;
     private static String telegramChatId = "";
     private static File DownloadPath = new File("StudIP/Files/");
@@ -173,7 +173,7 @@ public class Hauptklasse {
             System.out.println("Falsche Logindaten");
             e.printStackTrace();
         }
-        if (currentUser == null && currentUser.getName().equals("")) {
+        if (currentUser == null || currentUser.getName().equals("")) {
             System.out.println("Fehler beim Login!");
             System.exit(0);
         }
