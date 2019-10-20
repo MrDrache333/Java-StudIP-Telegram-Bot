@@ -52,7 +52,6 @@ public class Kurs {
         if (webClient != null && FilesPage != null) {
             ArrayList<StudIPFile> StudIPFiles = new ArrayList<>();
             try {
-                System.out.println("Update Dateien für Modul: " + Name);
                 //Seite mit Dateien des Kurses laden
                 HtmlPage filespage = webClient.getPage(FilesPage + "?cid=" + ID);
                 Document FilePageContent = Jsoup.parse(filespage.asXml());

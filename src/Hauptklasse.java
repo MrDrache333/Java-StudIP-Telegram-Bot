@@ -3,7 +3,6 @@ import javafx.stage.Stage;
 import objects.*;
 import utils.Password;
 import utils.Settings;
-import utils.htmlcrawler;
 import utils.telegramBot;
 
 import java.io.File;
@@ -45,6 +44,8 @@ public class Hauptklasse {
      * The constant programSettings.
      */
     public static Settings programSettings = new Settings(new File("config.xml"), true);
+    public static Settings blacklist = new Settings(new File("blacklist.stud"), false);
+    public static Settings filelist = new Settings(new File("filelist.stud"), false);
     /**
      * The constant programStorage.
      */
@@ -103,6 +104,15 @@ public class Hauptklasse {
 
         }
 
+        if (filelist.loadProperties()) {
+            utils.Debugger.Sout("Filelist: Successfully loadet filelist stored in \"" + filelist.getFile().getName() + "\"");
+        } else
+            utils.Debugger.Sout("Filelist: Failed loading filelist stored in \"" + filelist.getFile().getName() + "\"");
+        if (blacklist.loadProperties()) {
+            utils.Debugger.Sout("Blacklist: Successfully loadet filelist stored in \"" + blacklist.getFile().getName() + "\"");
+        } else
+            utils.Debugger.Sout("Blacklist: Failed loading filelist stored in \"" + blacklist.getFile().getName() + "\"");
+
         //Programmeinstellungen laden und ggf. anlegen
         if (programSettings.loadProperties()) {
             Sout("Settings: Info: Successfully loaded Settings stored in \"" + programSettings.getFile().getName() + "\"");
@@ -123,8 +133,6 @@ public class Hauptklasse {
             } else
                 writeerror(new Exception("Settings: Info: Failed store Settings at \"" + programSettings.getFile().getName() + "\""));
         }
-
-
     }
 
     //Funktion zum anmeldenm abrufen der Daten und weiterleitung an Telegram
@@ -153,26 +161,26 @@ public class Hauptklasse {
             String kursname = kurs.getName();
             if (kursname.contains("(")) kursname = kursname.substring(0, kursname.indexOf("("));
 
+            boolean black = !blacklist.getProperty(kurs.getID()).equals("");
 
-            //TODO Mach was
+            System.out.println("Update Modul: " + kurs.getID() + " | " + kursname);
 
-            ArrayList<StudIPFile> Files = kurs.fetchFileInfos(webClient, currentUni.getFilesPage(), currentUni.getFilesDetailsPage(), currentUni.getFilesDownloadLink());
-            String post = "";
-            for (StudIPFile file : Files) {
-                if (!new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName()).exists()) {
-                    //System.out.println("\t" + file.getName() + " is new!");
-                    post += "[" + file.getName() + "](" + file.getLink() + ")\n";
-                    while (htmlcrawler.isDOwnloading) {
+            if (black) {
+                ArrayList<StudIPFile> Files = kurs.fetchFileInfos(webClient, currentUni.getFilesPage(), currentUni.getFilesDetailsPage(), currentUni.getFilesDownloadLink());
+                String post = "";
+                for (StudIPFile file : Files) {
+                    if (!new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName()).exists()) {
+                        //System.out.println("\t" + file.getName() + " is new!");
+                        post += "[" + file.getName() + "](" + file.getLink() + ")\n";
+                        utils.htmlcrawler.DownloadFile(webClient, file.getLink(), new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName()));
+
                     }
-                    utils.htmlcrawler.DownloadFile(webClient, file.getLink(), new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName()));
-
+                }
+                if (!post.equals("")) {
+                    post = "📄 _" + kursname + "_ 📄\n*Neue Dateien verfügbar*\n" + post + "\n[Alle neuen Dateien herunterladen](" + currentUni.getAllFilesDownloadLink() + "?cid=" + kurs.getID() + ")";
+                    telegramBot.sendMessage(telegramChatId, post, !TESTING);
                 }
             }
-            if (!post.equals("")) {
-                post = "📄 _" + kursname + "_ 📄\n*Neue Dateien verfügbar*\n" + post + "\n[Alle neuen Dateien herunterladen](" + currentUni.getAllFilesDownloadLink() + "?cid=" + kurs.getID() + ")";
-                telegramBot.sendMessage(telegramChatId, post, !TESTING);
-            }
-
             //Wenn es Updates gibt an Telegram weiterleiten
             if (kurs.isHasNewNews()) {
                 System.out.println("\t\t- " + kurs.getName() + "\tFiles: " + kurs.getFileCount() + "\tNewFiles: " + (kurs.isHasNewFiles() ? "Ja" : "Nein") + "\tNewPosts: " + (kurs.isHasNewPosts() ? "Ja" : "Nein") + "\tNewNews: " + (kurs.isHasNewNews() ? "Ja" : "Nein"));

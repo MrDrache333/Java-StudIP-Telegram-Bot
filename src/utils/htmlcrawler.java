@@ -18,10 +18,6 @@ import java.net.URL;
  */
 public class htmlcrawler {
 
-    /**
-     * The constant isDOwnloading.
-     */
-    public static boolean isDOwnloading = false;
     private WebClient webClient;
 
     /**
@@ -86,7 +82,6 @@ public class htmlcrawler {
             }
 
             public void webWindowContentChanged(WebWindowEvent event) {
-                isDOwnloading = true;
                 Page page = event.getNewPage();
                 //System.out.println(page.getUrl());
                 String Path = output.getPath().substring(0, output.getPath().lastIndexOf("/") + 1);
@@ -109,21 +104,16 @@ public class htmlcrawler {
                                 fos.close();
                             if (is != null)
                                 is.close();
-                            isDOwnloading = false;
                             if (output.exists()) {
                                 System.out.println("Datei " + output.getPath() + " erfolgreich heruntergeladen!");
                             } else
                                 System.err.println("Fehler beim Herunterladen der Datei " + output.getName() + " nach " + output.getPath());
                         } catch (IOException e) {
                             e.printStackTrace();
-                            isDOwnloading = false;
                         }
                     }
                 } else {
                     System.out.println("Fehler beim speichern der Datei " + output.getName());
-                    isDOwnloading = false;
-                }
-                while (isDOwnloading) {
                 }
             }
 

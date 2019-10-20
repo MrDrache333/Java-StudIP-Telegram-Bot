@@ -65,9 +65,9 @@ public class Settings {
                 out = props.getProperty(key);
             }
         } catch (Exception e) {
-            writeerror(e);
+            //Sout("Wert: " + key + " wurde nicht in " + Savefile.getName() + " gefunden!");
         }
-        if (out.equals("null")) return "";
+        if (out == null || out.equals("null")) return "";
         else
             return out;
     }
