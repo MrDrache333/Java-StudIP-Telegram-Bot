@@ -3,7 +3,7 @@ Proof of Concept Java StudIP Telegram Bot
 
 ![Telegram_01](Screenshots/Screenshot_Telegram_01.jpeg)
 
-##Overview
+## Overview
 
 *What will this Bot do?*
  - It will simply login to your StudIP-Account using your Credentials (Stored localy and secure)
@@ -12,11 +12,11 @@ Proof of Concept Java StudIP Telegram Bot
  - It will download new Files and create a Filesturcture analog to StudIP (Easy to Sync to NAS for example)
  - It will automatically format and push these Informations to a Telegram Chat using your own Bot
  
- ###FAQ
+ ### FAQ
  *Our StudI-Api is not activated. Will it still work?*
 Yes. This Bot works using a virtual Browser instance to comunicate with StudIP. So no API is needet :)
 
-##Installation
+## Installation
 
 1. Download this Bot
 2. Verify that Java 8 JRE is installed on your machine
@@ -27,7 +27,7 @@ Yes. This Bot works using a virtual Browser instance to comunicate with StudIP. 
 7. ...
 8. Profit?
 
-##Roadmap
+## Roadmap
 
 - More settings, customisation
 - Better commandline Interface
