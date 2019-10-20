@@ -9,6 +9,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 import static utils.Debugger.Sout;
 import static utils.Debugger.writeerror;
@@ -65,9 +66,6 @@ public class Hauptklasse {
      */
     public static void main(String[] args) {
 
-        //telegramBot.sendMessage(telegramChatId,"Dies ist ein Test",true);
-
-
         if (args.length > 0) {
             //Wenn das Programm getestet wird den Testmodus einschalten
             if (args[0].equals("TEST")) {
@@ -75,6 +73,33 @@ public class Hauptklasse {
                 TESTING = true;
                 //TODO Ändere diese in deine Private ChatID
                 telegramChatId = "895714744";    //Privat
+            } else if (args[0].equals("INIT")) {
+                Scanner in = new Scanner(System.in);
+                Sout("Gebe deinen Benutzernamen der Uni ein:");
+                String user;
+                while ((user = in.nextLine()).equals("")) {
+                    Sout("Der Benutzername darf nicht leer sein:");
+                }
+                Sout("Gebe dein Passwort für " + user + " ein:");
+                String pass;
+                while ((pass = in.nextLine()).equals("")) {
+                    Sout("Das Passwort darf nicht leer sein:");
+                }
+
+                //Versuchen einzuloggen
+                Sout("Einloggen...");
+                try {
+                    //Einloggen
+                    currentUser = login.EinLoggen(currentUni.getLoginPage(), user, pass);
+                } catch (Exception e) {
+                    Sout("Falsche Logindaten");
+                    e.printStackTrace();
+                }
+                Sout("Erfolgreich angemeldet!");
+                programSettings.setProperty("login_username", user);
+                programSettings.setProperty("login_password", user);
+                programSettings.saveProperties();
+
             }
 
         } else {
@@ -124,7 +149,6 @@ public class Hauptklasse {
         } else {
             //Bei Fehler die Programmeinstellungen zurücksetzen und neu erstellen
             programSettings.resetProperties();
-            programSettings.addProperty("login_rememberme", "false");
             programSettings.addProperty("login_username", "");
             programSettings.addProperty("login_password", "");
             programSettings.addProperty("telegram.token", "");
