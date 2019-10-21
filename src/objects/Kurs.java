@@ -88,9 +88,10 @@ public class Kurs {
                         StudIPFile file = new StudIPFile(id, FileName.equals("") ? fileName : FileName, new URL(BaseUrl));
                         file.setNew(neu);
 
-                        //Speicherort auslesen
+                        //Speicherort und Änderungsdatum auslesen
                         try {
 
+                            //Speicherort
                             HtmlPage detailpage = webClient.getPage(FileDetailsPage + id + "/1?cid=" + ID);
                             Document DetailPage = Jsoup.parse(detailpage.asXml());
                             Elements folders = DetailPage.getElementById("preview_container").getElementsByAttribute("href");
@@ -105,6 +106,16 @@ public class Kurs {
                                 path += folder + "/";
                             }
                             file.setPath(path);
+
+                            //Änderungsdatum auslesen
+                            Elements table = DetailPage.getElementsByTag("tr");
+                            for (int i = 0; i < table.size(); i++) {
+                                Element tr = table.get(i);
+                                if (tr.text().toLowerCase().contains("geändert") || tr.text().toLowerCase().contains("changed")) {
+
+                                }
+                            }
+
 
 
                         } catch (Exception e) {
