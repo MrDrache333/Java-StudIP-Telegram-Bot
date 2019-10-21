@@ -6,6 +6,7 @@ import utils.telegramBot;
 
 import java.io.File;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -205,8 +206,9 @@ public class Hauptklasse {
                     File studipfile = new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName());
                     boolean aktuell = studipfile.exists() && studipfile.lastModified() >= file.getLastChanged().getTime();
                     if (!studipfile.exists() || !aktuell) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd.MM.yyyy");
                         if (!aktuell) {
-                            Sout("Datei " + file.getName() + " ist nicht mehr aktuell. Aktualisiere...");
+                            Sout("Datei " + file.getName() + " ist nicht mehr aktuell. Datei: " + sdf.format(studipfile.lastModified()) + " / StudIP: " + sdf.format(file.getLastChanged().getTime()) + "Aktualisiere...");
                             updatedfiles += "[" + file.getName() + "](" + file.getLink() + ")\n";
                         } else
                             newfiles += "[" + file.getName() + "](" + file.getLink() + ")\n";
@@ -218,7 +220,7 @@ public class Hauptklasse {
                     newfiles = "\n*Neue Dateien verfügbar*\n" + newfiles + "\n[Alle neuen Dateien herunterladen](" + currentUni.getAllFilesDownloadLink() + "?cid=" + kurs.getID() + ")";
                 }
                 if (!updatedfiles.equals("")) {
-                    newfiles = "\n*Aktualisierte Dateien*\n" + updatedfiles;
+                    updatedfiles = "\n*Aktualisierte Dateien*\n" + updatedfiles;
                 }
                 if (!newfiles.equals("") && !updatedfiles.equals("")) {
                     String header = "📄 _" + kursname + "_ 📄";
