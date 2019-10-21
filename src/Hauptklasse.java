@@ -195,24 +195,37 @@ public class Hauptklasse {
 
             boolean black = !blacklist.getProperty(kurs.getID()).equals("");
 
-            System.out.println("Update Modul: " + kurs.getID() + " | " + kursname);
-
-            if (black) {
+            if (!black) {
+                System.out.println("Update Modul: " + kurs.getID() + " | " + kursname);
                 ArrayList<StudIPFile> Files = kurs.fetchFileInfos(webClient, currentUni.getFilesPage(), currentUni.getFilesDetailsPage(), currentUni.getFilesDownloadLink());
-                String post = "";
+                String newfiles = "";
+                String updatedfiles = "";
                 for (StudIPFile file : Files) {
                     //TODO Änderungsdatum vergleichen
-                    if (!new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName()).exists()) {
-                        //System.out.println("\t" + file.getName() + " is new!");
-                        post += "[" + file.getName() + "](" + file.getLink() + ")\n";
+                    File studipfile = new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName());
+                    boolean aktuell = studipfile.exists() && studipfile.lastModified() >= file.getLastChanged().getTime();
+                    if (!studipfile.exists() || !aktuell) {
+                        if (!aktuell) {
+                            Sout("Datei " + file.getName() + " ist nicht mehr aktuell. Aktualisiere...");
+                            updatedfiles += "[" + file.getName() + "](" + file.getLink() + ")\n";
+                        } else
+                            newfiles += "[" + file.getName() + "](" + file.getLink() + ")\n";
                         utils.htmlcrawler.DownloadFile(webClient, file.getLink(), new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName()));
 
                     }
                 }
-                if (!post.equals("")) {
-                    post = "📄 _" + kursname + "_ 📄\n*Neue Dateien verfügbar*\n" + post + "\n[Alle neuen Dateien herunterladen](" + currentUni.getAllFilesDownloadLink() + "?cid=" + kurs.getID() + ")";
-                    telegramBot.sendMessage(telegramChatId, post, !TESTING);
+                if (!newfiles.equals("")) {
+                    newfiles = "\n*Neue Dateien verfügbar*\n" + newfiles + "\n[Alle neuen Dateien herunterladen](" + currentUni.getAllFilesDownloadLink() + "?cid=" + kurs.getID() + ")";
                 }
+                if (!updatedfiles.equals("")) {
+                    newfiles = "\n*Aktualisierte Dateien*\n" + updatedfiles;
+                }
+                if (!newfiles.equals("") && !updatedfiles.equals("")) {
+                    String header = "📄 _" + kursname + "_ 📄";
+                    telegramBot.sendMessage(telegramChatId, header + updatedfiles + newfiles, !TESTING);
+                }
+            } else {
+                Sout("Modul " + kursname + " übersprungen!");
             }
             //Wenn es Updates gibt an Telegram weiterleiten
             if (kurs.isHasNewNews()) {

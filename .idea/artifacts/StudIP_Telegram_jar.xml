@@ -3,6 +3,12 @@
     <output-path>$PROJECT_DIR$/out/artifacts/StudIP_Telegram_jar</output-path>
     <root id="archive" name="StudIP-Telegram.jar">
       <element id="module-output" name="StudIP-Telegram" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-codec-1.10.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-io-2.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-lang3-3.8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-logging-1.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-net-3.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-text-1.4.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/htmlunit-2.33.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/htmlunit-core-js-2.33.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/htmlunit-cssparser-1.2.0.jar" path-in-jar="/" />
