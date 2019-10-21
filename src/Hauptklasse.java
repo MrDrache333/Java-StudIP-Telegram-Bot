@@ -1,7 +1,6 @@
 import com.gargoylesoftware.htmlunit.WebClient;
 import javafx.stage.Stage;
 import objects.*;
-import utils.Password;
 import utils.Settings;
 import utils.telegramBot;
 
@@ -44,7 +43,7 @@ public class Hauptklasse {
     /**
      * The constant programSettings.
      */
-    private static Settings programSettings = new Settings(new File("config.xml"), true);
+    private static Settings programSettings = new Settings(new File("config.xml"), false);
     private static Settings blacklist = new Settings(new File("blacklist.stud"), false);
     private static Settings filelist = new Settings(new File("filelist.stud"), false);
     /**
@@ -66,47 +65,8 @@ public class Hauptklasse {
      */
     public static void main(String[] args) {
 
-        if (args.length > 0) {
-            //Wenn das Programm getestet wird den Testmodus einschalten
-            if (args[0].equals("TEST")) {
-                System.out.println("TESTMODUS");
-                TESTING = true;
-                //TODO Ändere diese in deine Private ChatID
-                telegramChatId = "895714744";    //Privat
-            } else if (args[0].equals("INIT")) {
-                Scanner in = new Scanner(System.in);
-                Sout("Gebe deinen Benutzernamen der Uni ein:");
-                String user;
-                while ((user = in.nextLine()).equals("")) {
-                    Sout("Der Benutzername darf nicht leer sein:");
-                }
-                Sout("Gebe dein Passwort für " + user + " ein:");
-                String pass;
-                while ((pass = in.nextLine()).equals("")) {
-                    Sout("Das Passwort darf nicht leer sein:");
-                }
-
-                //Versuchen einzuloggen
-                Sout("Einloggen...");
-                try {
-                    //Einloggen
-                    currentUser = login.EinLoggen(currentUni.getLoginPage(), user, pass);
-                } catch (Exception e) {
-                    Sout("Falsche Logindaten");
-                    e.printStackTrace();
-                }
-                Sout("Erfolgreich angemeldet!");
-                programSettings.setProperty("login_username", user);
-                programSettings.setProperty("login_password", user);
-                programSettings.saveProperties();
-
-            }
-
-        } else {
-            //TODO Ändere diese in deine Gruppen ChatID
-            telegramChatId = "-396426700";    //Gruppe
-        }
-
+        //TODO Ändere diese in deine Gruppen ChatID
+        telegramChatId = "-396426700";    //Gruppe
 
         try {
             //Uni erstellen mit nötigen Links
@@ -129,6 +89,19 @@ public class Hauptklasse {
 
         }
 
+        if (args.length > 0) {
+            //Wenn das Programm getestet wird den Testmodus einschalten
+            if (args[0].equals("TEST")) {
+                System.out.println("TESTMODUS");
+                TESTING = true;
+                //TODO Ändere diese in deine Private ChatID
+                telegramChatId = "895714744";    //Privat
+            } else if (args[0].equals("INIT")) {
+                init();
+            }
+
+        }
+
         if (filelist.loadProperties()) {
             utils.Debugger.Sout("Filelist: Successfully loadet filelist stored in \"" + filelist.getFile().getName() + "\"");
         } else
@@ -139,7 +112,7 @@ public class Hauptklasse {
             utils.Debugger.Sout("Blacklist: Failed loading filelist stored in \"" + blacklist.getFile().getName() + "\"");
 
         //Programmeinstellungen laden und ggf. anlegen
-        if (programSettings.loadProperties()) {
+        if (programSettings.loadProperties() && !programSettings.getProperty("login_username").equals("") && !programSettings.getProperty("login_password").equals("") && !programSettings.getProperty("telegram.token").equals("")) {
             Sout("Settings: Info: Successfully loaded Settings stored in \"" + programSettings.getFile().getName() + "\"");
 
             //Neuen Telegram Bot erstellen
@@ -149,14 +122,49 @@ public class Hauptklasse {
         } else {
             //Bei Fehler die Programmeinstellungen zurücksetzen und neu erstellen
             programSettings.resetProperties();
-            programSettings.addProperty("login_username", "");
-            programSettings.addProperty("login_password", "");
-            programSettings.addProperty("telegram.token", "");
-            if (programSettings.saveProperties()) {
-                Sout("Settings: Info: Successfully stored Settings at \"" + programSettings.getFile().getName() + "\"");
-            } else
-                writeerror(new Exception("Settings: Info: Failed store Settings at \"" + programSettings.getFile().getName() + "\""));
+            init();
         }
+    }
+
+    private static void init() {
+        Scanner in = new Scanner(System.in);
+        Sout("Gebe deinen Benutzernamen der Uni ein:");
+        String user;
+        while ((user = in.nextLine()).equals("")) {
+            Sout("Der Benutzername darf nicht leer sein:");
+        }
+        Sout("Gebe dein Passwort für " + user + " ein:");
+        String pass;
+        while ((pass = in.nextLine()).equals("")) {
+            Sout("Das Passwort darf nicht leer sein:");
+        }
+
+        //Versuchen einzuloggen
+        try {
+            //Einloggen
+            currentUser = login.EinLoggen(currentUni.getLoginPage(), user, pass);
+        } catch (Exception e) {
+            Sout("Falsche Logindaten");
+            e.printStackTrace();
+        }
+        Sout("Erfolgreich angemeldet!");
+
+        //Telegram Token
+        Sout("Gebe dein API-Token deines Telegram Bots ein:");
+        String token;
+        while ((token = in.nextLine()).equals("")) {
+            Sout("Der Token darf nicht leer sein:");
+        }
+
+        //TODO Check connection to Bot
+
+        programSettings.setProperty("telegram.token", token);
+        programSettings.setProperty("login_username", user);
+        programSettings.setProperty("login_password", pass);
+        if (programSettings.saveProperties()) {
+            Sout("Settings: Info: Successfully stored Settings at \"" + programSettings.getFile().getName() + "\"");
+        } else
+            writeerror(new Exception("Settings: Info: Failed store Settings at \"" + programSettings.getFile().getName() + "\""));
     }
 
     //Funktion zum anmeldenm abrufen der Daten und weiterleitung an Telegram
@@ -167,7 +175,7 @@ public class Hauptklasse {
         //Versuchen einzuloggen
         try {
             //Einloggen
-            currentUser = login.EinLoggen(currentUni.getLoginPage(), user, Password.lock(pass));
+            currentUser = login.EinLoggen(currentUni.getLoginPage(), user, pass);
             currentUser = login.filterInfos(currentUser);
         } catch (Exception e) {
             System.out.println("Falsche Logindaten");
@@ -193,6 +201,7 @@ public class Hauptklasse {
                 ArrayList<StudIPFile> Files = kurs.fetchFileInfos(webClient, currentUni.getFilesPage(), currentUni.getFilesDetailsPage(), currentUni.getFilesDownloadLink());
                 String post = "";
                 for (StudIPFile file : Files) {
+                    //TODO Änderungsdatum vergleichen
                     if (!new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName()).exists()) {
                         //System.out.println("\t" + file.getName() + " is new!");
                         post += "[" + file.getName() + "](" + file.getLink() + ")\n";

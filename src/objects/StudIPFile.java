@@ -1,6 +1,7 @@
 package objects;
 
 import java.net.URL;
+import java.util.Date;
 
 /**
  * The type Stud ip file.
@@ -12,6 +13,7 @@ public class StudIPFile {
     private String ID;
     private boolean isNew;
     private URL Link;
+    private Date lastChanged;
 
 
     /**
@@ -27,6 +29,25 @@ public class StudIPFile {
         this.Link = link;
         this.isNew = false;
         this.Path = "";
+        this.lastChanged = new Date();
+    }
+
+    /**
+     * Gets last changed.
+     *
+     * @return the last changed
+     */
+    public Date getLastChanged() {
+        return lastChanged;
+    }
+
+    /**
+     * Sets last changed.
+     *
+     * @param lastChanged the last changed
+     */
+    public void setLastChanged(Date lastChanged) {
+        this.lastChanged = lastChanged;
     }
 
     /**

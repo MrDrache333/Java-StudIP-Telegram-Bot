@@ -1,13 +1,11 @@
 package utils;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.Base64;
 
 import static utils.Debugger.writeerror;
 
@@ -53,8 +51,7 @@ public class Password {
             byte[] encrypted = cipher.doFinal(message.getBytes());
 
             // bytes zu Base64-String konvertieren (dient der Lesbarkeit)
-            BASE64Encoder myEncoder = new BASE64Encoder();
-            return myEncoder.encode(encrypted);
+            return Arrays.toString(Base64.getEncoder().encode(encrypted));
         } catch (Exception e) {
             writeerror(e);
         }
@@ -72,8 +69,7 @@ public class Password {
         try {
 
             // BASE64 String zu Byte-Array konvertieren
-            BASE64Decoder myDecoder2 = new BASE64Decoder();
-            byte[] crypted2 = myDecoder2.decodeBuffer(input);
+            byte[] crypted2 = Base64.getDecoder().decode(input);
 
             // Entschluesseln
             Cipher cipher2 = Cipher.getInstance("AES");

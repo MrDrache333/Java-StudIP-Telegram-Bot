@@ -10,7 +10,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
-import utils.Password;
 import utils.htmlcrawler;
 
 import java.net.URL;
@@ -59,7 +58,7 @@ public class login {
             HtmlForm form = page.getForms().get(0);
             form.getInputByName("loginname").setValueAttribute(UserID);
             HtmlInput passWordInput = form.getInputByName("password");
-            passWordInput.setValueAttribute(Password.entlock(Passwort));
+            passWordInput.setValueAttribute(Passwort);
 
             //Auf den Loginbutton klicken
             page = form.getButtonByName("login").click();

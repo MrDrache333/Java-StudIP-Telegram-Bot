@@ -9,7 +9,9 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * The type Kurs.
@@ -112,7 +114,9 @@ public class Kurs {
                             for (int i = 0; i < table.size(); i++) {
                                 Element tr = table.get(i);
                                 if (tr.text().toLowerCase().contains("geändert") || tr.text().toLowerCase().contains("changed")) {
-
+                                    SimpleDateFormat df = new SimpleDateFormat("dd.MM.YYYY HH:mm");
+                                    Date date = df.parse(table.get(i + 1).text());
+                                    file.setLastChanged(date);
                                 }
                             }
 
