@@ -168,10 +168,11 @@ public class Kurs {
             Document Content = Jsoup.parse(page.asXml());
             //System.out.println(page.asText());
             //Neue News filtern
-            Elements articles = Content.select(".studip .new");
+            Elements articles = Content.select(".studip .toggle .new"); //.new
             for (Element article : articles) {
                 //News auslesen und als gelesen markieren
                 News news = new News(article.select("h1").text(), article.select(".formatted-content").text(), article.getElementsByAttribute("id").get(0).attr("id"));
+                news.setHtml(article.select(".formatted-content").html());
                 if (markAsRead)
                     webClient.getPage(url + ID + "&contentbox_type=news&contentbox_open=" + news.getID() + "#" + news.getID());
                 newNews.add(news);
@@ -182,7 +183,6 @@ public class Kurs {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //TODO
         return newNews;
     }
 

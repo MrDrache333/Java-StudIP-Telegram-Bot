@@ -8,6 +8,7 @@ public class News {
     private String Title;
     private String Text;
     private String ID;
+    private String html;
 
     /**
      * Instantiates a new News.
@@ -20,6 +21,24 @@ public class News {
         this.Title = tilte;
         this.Text = text;
         this.ID = id;
+    }
+
+    /**
+     * Gets html.
+     *
+     * @return the html
+     */
+    public String getHtml() {
+        return html;
+    }
+
+    /**
+     * Sets html.
+     *
+     * @param html the html
+     */
+    public void setHtml(String html) {
+        this.html = html;
     }
 
     /**

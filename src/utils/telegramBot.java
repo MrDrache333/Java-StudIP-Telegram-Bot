@@ -13,6 +13,25 @@ public class telegramBot {
     private static String TOKEN;
 
     /**
+     * Send message.
+     *
+     * @param chat_id the chat id
+     * @param text    the text
+     * @param send    the send
+     */
+    public static void sendMessage(String chat_id, String text, parseMode type, boolean send) {
+        if (chat_id.equals("")) return;
+        text = text.replace("\"", "\\\"");
+        String data = "{\"chat_id\":\"" + chat_id + "\"" + (type != parseMode.TEXT ? ",\"parse_mode\":\"" + type.name() + "\"" : "") + ",\"text\":\"" + text + "\"}";
+        if (type == parseMode.HTML) data = data.replaceAll("\n", "<br>");
+        if (send) {
+            if (TOKEN.equals("")) throw new NullPointerException("Telegram BotToken must not be Null");
+            httpPost(data, "sendMessage", true);
+        } else
+            System.out.println(data);
+    }
+
+    /**
      * Instantiates a new Telegram bot.
      *
      * @param token the token
@@ -20,23 +39,6 @@ public class telegramBot {
     public telegramBot(String token) {
         TOKEN = token;
 
-    }
-
-    /**
-     * Send message.
-     *
-     * @param chat_id the chat id
-     * @param text    the text
-     * @param send    the send
-     */
-    public static void sendMessage(String chat_id, String text, boolean send) {
-        if (chat_id.equals("")) return;
-        String data = "{\"chat_id\":\"" + chat_id + "\",\"text\":\"" + text + "\",\"parse_mode\":\"Markdown\"}";
-        if (send) {
-            if (TOKEN.equals("")) throw new NullPointerException("Telegram BotToken must not be Null");
-            httpPost(data, "sendMessage", true);
-        } else
-            System.out.println(data);
     }
 
     /**
@@ -59,6 +61,7 @@ public class telegramBot {
                     HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
                     conn.setConnectTimeout(5000);
                     conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                    conn.setFixedLengthStreamingMode(Data.getBytes(StandardCharsets.UTF_8).length);
                     conn.setDoOutput(true);
                     conn.setDoInput(true);
                     conn.setRequestMethod("POST");
@@ -76,14 +79,22 @@ public class telegramBot {
                     conn.disconnect();
                     trys = 0;
                 } catch (Exception e) {
-                    if (trys > 1)
+                    if (trys > 2) {
                         System.err.println("Failed to send Message. Probably to long?");
+                        System.err.println(e.getMessage());
+                    }
                     trys++;
                 }
-            } while (trys > 0 && trys < 3);
+            } while (trys > 0 && trys < 4);
         }
 
 
+    }
+
+    public enum parseMode {
+        HTML,
+        MARKDOWN,
+        TEXT
     }
 
     //Konvertiert die Eingabe eines InputStreams in einen String und gibt ihn zurück

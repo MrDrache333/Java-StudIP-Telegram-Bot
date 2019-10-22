@@ -202,12 +202,11 @@ public class Hauptklasse {
                 String newfiles = "";
                 String updatedfiles = "";
                 for (StudIPFile file : Files) {
-                    //TODO Änderungsdatum vergleichen
                     File studipfile = new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName());
                     boolean aktuell = studipfile.exists() && studipfile.lastModified() >= file.getLastChanged().getTime();
                     if (!studipfile.exists() || !aktuell) {
                         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd.MM.yyyy");
-                        if (!aktuell) {
+                        if (studipfile.exists()) {
                             Sout("Datei " + file.getName() + " ist nicht mehr aktuell. Datei: " + sdf.format(studipfile.lastModified()) + " / StudIP: " + sdf.format(file.getLastChanged().getTime()) + "Aktualisiere...");
                             updatedfiles += "[" + file.getName() + "](" + file.getLink() + ")\n";
                         } else
@@ -222,9 +221,9 @@ public class Hauptklasse {
                 if (!updatedfiles.equals("")) {
                     updatedfiles = "\n*Aktualisierte Dateien*\n" + updatedfiles;
                 }
-                if (!newfiles.equals("") && !updatedfiles.equals("")) {
+                if (!newfiles.equals("") || !updatedfiles.equals("")) {
                     String header = "📄 _" + kursname + "_ 📄";
-                    telegramBot.sendMessage(telegramChatId, header + updatedfiles + newfiles, !TESTING);
+                    telegramBot.sendMessage(telegramChatId, header + updatedfiles + newfiles, telegramBot.parseMode.MARKDOWN, true);
                 }
             } else {
                 Sout("Modul " + kursname + " übersprungen!");
@@ -239,7 +238,7 @@ public class Hauptklasse {
                 for (News news : newNews) {
                     //Neue News an Telegram senden
                     //System.out.println("\t" + news.getTitle() + "\n\t\t" + news.getText());
-                    telegramBot.sendMessage(telegramChatId, "📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), !TESTING);
+                    telegramBot.sendMessage(telegramChatId, "📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), telegramBot.parseMode.MARKDOWN, true);
                     sendMessages++;
                 }
             }
