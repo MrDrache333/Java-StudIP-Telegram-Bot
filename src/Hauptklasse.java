@@ -95,7 +95,8 @@ public class Hauptklasse {
             if (args[0].equals("TEST")) {
                 System.out.println("TESTMODUS");
                 TESTING = true;
-                //TODO Ändere diese in deine Private ChatID
+                /*TODO Ändere diese in deine Private ChatID
+                 */
                 telegramChatId = "895714744";    //Privat
             } else if (args[0].equals("INIT")) {
                 init();
@@ -112,21 +113,22 @@ public class Hauptklasse {
         } else
             utils.Debugger.Sout("Blacklist: Failed loading filelist stored in \"" + blacklist.getFile().getName() + "\"");
 
-        //Programmeinstellungen laden und ggf. anlegen
+        //Load the Programsettings or create if missing
         if (programSettings.loadProperties() && !programSettings.getProperty("login_username").equals("") && !programSettings.getProperty("login_password").equals("") && !programSettings.getProperty("telegram.token").equals("")) {
             Sout("Settings: Info: Successfully loaded Settings stored in \"" + programSettings.getFile().getName() + "\"");
 
-            //Neuen Telegram Bot erstellen
+            //Create a new Telegram_bot
             TelegramBot = new telegramBot(programSettings.getProperty("telegram.token"));
 
             login(programSettings.getProperty("login_username"), programSettings.getProperty("login_password"));
         } else {
-            //Bei Fehler die Programmeinstellungen zurücksetzen und neu erstellen
+            //Reset the config file, if something is corrupt
             programSettings.resetProperties();
             init();
         }
     }
 
+    //Configure the Telegram Bot
     private static void init() {
         Scanner in = new Scanner(System.in);
         Sout("Gebe deinen Benutzernamen der Uni ein:");
@@ -140,9 +142,9 @@ public class Hauptklasse {
             Sout("Das Passwort darf nicht leer sein:");
         }
 
-        //Versuchen einzuloggen
+        //Try to login
         try {
-            //Einloggen
+            //Login
             currentUser = login.EinLoggen(currentUni.getLoginPage(), user, pass);
         } catch (Exception e) {
             Sout("Falsche Logindaten");
@@ -157,7 +159,7 @@ public class Hauptklasse {
             Sout("Der Token darf nicht leer sein:");
         }
 
-        //TODO Check connection to Bot
+        //TODO Check connection to Bot for better INIT
 
         programSettings.setProperty("telegram.token", token);
         programSettings.setProperty("login_username", user);
@@ -168,14 +170,14 @@ public class Hauptklasse {
             writeerror(new Exception("Settings: Info: Failed store Settings at \"" + programSettings.getFile().getName() + "\""));
     }
 
-    //Funktion zum anmeldenm abrufen der Daten und weiterleitung an Telegram
+    //Lgoin, Data fetching and Telegram Push
     private static void login(String user, String pass) {
 
         currentUser = null;
 
-        //Versuchen einzuloggen
+        //Login
         try {
-            //Einloggen
+            //Try to login
             currentUser = login.EinLoggen(currentUni.getLoginPage(), user, pass);
             currentUser = login.filterInfos(currentUser);
         } catch (Exception e) {
@@ -186,7 +188,7 @@ public class Hauptklasse {
             System.out.println("Fehler beim Login!");
             System.exit(0);
         }
-        //Login erfolgreich und Daten empfangen
+        //At this Point the User is successfully loged in
 
         int sendMessages = 0;
         //Kurse nach Updates untersuchen
@@ -194,16 +196,20 @@ public class Hauptklasse {
             String kursname = kurs.getName();
             if (kursname.contains("(")) kursname = kursname.substring(0, kursname.indexOf("("));
 
+            //Check if course is Blacklisted
             boolean black = !blacklist.getProperty(kurs.getID()).equals("");
 
             if (!black) {
                 System.out.println("Update Modul: " + kurs.getID() + " | " + kursname);
+                //Get FIle Infos for the Course
                 ArrayList<StudIPFile> Files = kurs.fetchFileInfos(webClient, currentUni.getFilesPage(), currentUni.getFilesDetailsPage(), currentUni.getFilesDownloadLink());
                 String newfiles = "";
                 String updatedfiles = "";
                 for (StudIPFile file : Files) {
                     File studipfile = new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName());
+                    //Check, if the File is up to Date
                     boolean aktuell = studipfile.exists() && studipfile.lastModified() >= file.getLastChanged().getTime();
+                    //Check, if the file needs to be downloaded again, do it and add the Message to the Message-List
                     if (!studipfile.exists() || !aktuell) {
                         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd.MM.yyyy");
                         if (studipfile.exists()) {
@@ -215,6 +221,7 @@ public class Hauptklasse {
 
                     }
                 }
+                //Check, if any Messages need to be send to Telegram
                 if (!newfiles.equals("")) {
                     newfiles = "\n*Neue Dateien verfügbar*\n" + newfiles + "\n[Alle neuen Dateien herunterladen](" + currentUni.getAllFilesDownloadLink() + "?cid=" + kurs.getID() + ")";
                 }
@@ -228,16 +235,13 @@ public class Hauptklasse {
             } else {
                 Sout("Modul " + kursname + " übersprungen!");
             }
-            //Wenn es Updates gibt an Telegram weiterleiten
+            //Check if the Course has any new News to push
             if (kurs.isHasNewNews()) {
-                System.out.println("\t\t- " + kurs.getName() + "\tFiles: " + kurs.getFileCount() + "\tNewFiles: " + (kurs.isHasNewFiles() ? "Ja" : "Nein") + "\tNewPosts: " + (kurs.isHasNewPosts() ? "Ja" : "Nein") + "\tNewNews: " + (kurs.isHasNewNews() ? "Ja" : "Nein"));
-
                 //Neue News abrufen
                 ArrayList<News> newNews = kurs.getNews(webClient, "https://elearning.uni-oldenburg.de/dispatch.php/course/overview?cid=", !TESTING);
 
+                //Because there are potential large Posts, post any News Message as a unique Message to Telegram
                 for (News news : newNews) {
-                    //Neue News an Telegram senden
-                    //System.out.println("\t" + news.getTitle() + "\n\t\t" + news.getText());
                     telegramBot.sendMessage(telegramChatId, "📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), telegramBot.parseMode.MARKDOWN, true);
                     sendMessages++;
                 }
