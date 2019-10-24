@@ -164,13 +164,29 @@ public class login {
                             tempKurs.setFileCount(filecount);
                             boolean hasNewFiles = courseFilesInfo.attributes().get("class").contains("icon-role-attention");
                             tempKurs.setHasNewFiles(hasNewFiles);
-                            String ID = filesLink.substring(filesLink.indexOf("auswahl="));
-                            ID = ID.substring(ID.indexOf("=") + 1, ID.indexOf("&"));
-                            tempKurs.setID(ID);
 
                         } catch (Exception e) {
                             tempKurs.setHasNewFiles(false);
                             tempKurs.setFileCount(0);
+                        }
+
+                        //Kurs ID
+                        try {
+                            Node courseFilesInfo = rowElements.get(5).childNode(5);
+                            String filesLink = "";
+                            String ID = "";
+                            if (courseName.toString().contains("?d=")) {
+                                filesLink = courseName.toString();
+                                ID = filesLink.substring(filesLink.indexOf(" course-"));
+                                ID = ID.substring(ID.indexOf(" course-") + 8, ID.substring(ID.indexOf(" course-") + 8).indexOf("\""));
+                            } else {
+                                filesLink = courseFilesInfo.attributes().get("href");
+                                ID = filesLink.substring(filesLink.indexOf("auswahl="));
+                                ID = ID.substring(ID.indexOf("=") + 1, ID.indexOf("&"));
+                            }
+                            tempKurs.setID(ID);
+                        } catch (Exception e) {
+
                         }
 
                         //Neue Ankuendigungen?
