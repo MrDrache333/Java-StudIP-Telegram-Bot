@@ -1,7 +1,7 @@
 # Java-StudIP-Telegram-Bot
 Proof of Concept Java StudIP Telegram Bot
 
-![Telegram_01](Screenshots/Screenshot_Telegram_01.jpeg)
+![Telegram_01](Screenshots/Screenshot_Telegram_02.jpg)
 
 ## Overview
 
