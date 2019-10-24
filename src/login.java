@@ -177,8 +177,9 @@ public class login {
                             String ID = "";
                             if (courseName.toString().contains("?d=")) {
                                 filesLink = courseName.toString();
-                                ID = filesLink.substring(filesLink.indexOf(" course-"));
-                                ID = ID.substring(ID.indexOf(" course-") + 8, ID.substring(ID.indexOf(" course-") + 8).indexOf("\""));
+                                ID = filesLink.substring(filesLink.lastIndexOf(" course-"));
+                                ID = ID.substring(ID.indexOf(" course-") + 8);
+                                ID = ID.substring(0, ID.indexOf("\""));
                             } else {
                                 filesLink = courseFilesInfo.attributes().get("href");
                                 ID = filesLink.substring(filesLink.indexOf("auswahl="));

@@ -45,8 +45,8 @@ public class Hauptklasse {
      * The constant programSettings.
      */
     private static Settings programSettings = new Settings(new File("config.xml"), false);
-    private static Settings blacklist = new Settings(new File("blacklist.stud"), false);
     private static Settings filelist = new Settings(new File("filelist.stud"), false);
+    private static Settings modullist = new Settings(new File("modullist.stud"), false);
     /**
      * The constant programStorage.
      */
@@ -56,7 +56,7 @@ public class Hauptklasse {
      */
     private static boolean TESTING = false;
     private static telegramBot TelegramBot;
-    private static String telegramChatId = "";
+    private static long telegramChatId = 0;
     private static File DownloadPath = new File("StudIP/Files/");
 
     /**
@@ -66,8 +66,8 @@ public class Hauptklasse {
      */
     public static void main(String[] args) {
 
-        //TODO Ändere diese in deine Gruppen ChatID
-        telegramChatId = "-396426700";    //Gruppe
+        //TODO Configure ChatID's in the INIT-Function
+        telegramChatId = -396426700;    //Gruppe
 
         try {
             //Uni erstellen mit nötigen Links
@@ -95,23 +95,24 @@ public class Hauptklasse {
             if (args[0].equals("TEST")) {
                 System.out.println("TESTMODUS");
                 TESTING = true;
-                /*TODO Ändere diese in deine Private ChatID
-                 */
-                telegramChatId = "895714744";    //Privat
+                //TODO Configure ChatID's in the INIT
+                telegramChatId = 895714744;    //Privat
             } else if (args[0].equals("INIT")) {
                 init();
             }
 
         }
-
+        //Try to read the filelist
         if (filelist.loadProperties()) {
             utils.Debugger.Sout("Filelist: Successfully loadet filelist stored in \"" + filelist.getFile().getName() + "\"");
         } else
             utils.Debugger.Sout("Filelist: Failed loading filelist stored in \"" + filelist.getFile().getName() + "\"");
-        if (blacklist.loadProperties()) {
-            utils.Debugger.Sout("Blacklist: Successfully loadet filelist stored in \"" + blacklist.getFile().getName() + "\"");
+
+        //Try to read Modulelist
+        if (modullist.loadProperties()) {
+            utils.Debugger.Sout("Modullist: Successfully loadet Modullist stored in \"" + modullist.getFile().getName() + "\"");
         } else
-            utils.Debugger.Sout("Blacklist: Failed loading filelist stored in \"" + blacklist.getFile().getName() + "\"");
+            utils.Debugger.Sout("Modullist: Failed loading Modullist stored in \"" + modullist.getFile().getName() + "\"");
 
         //Load the Programsettings or create if missing
         if (programSettings.loadProperties() && !programSettings.getProperty("login_username").equals("") && !programSettings.getProperty("login_password").equals("") && !programSettings.getProperty("telegram.token").equals("")) {
@@ -196,8 +197,29 @@ public class Hauptklasse {
             String kursname = kurs.getName();
             if (kursname.contains("(")) kursname = kursname.substring(0, kursname.indexOf("("));
 
+
             //Check if course is Blacklisted
-            boolean black = !blacklist.getProperty(kurs.getID()).equals("");
+            boolean black;
+
+            try {
+                black = Boolean.parseBoolean(modullist.getProperty(kurs.getID() + ".blacklisted"));
+            } catch (Exception e) {
+                black = false;
+                modullist.setProperty(kurs.getID() + ".blacklisted", "" + black);
+            }
+
+            //Load the specific ChatId for Telegram
+            long telegramChatId = 0;
+            try {
+                telegramChatId = Long.parseLong(modullist.getProperty(kurs.getID()) + ".telegramChatId");
+            } catch (Exception e) {
+                modullist.setProperty(kurs.getID() + ".telegramChatId", "0");
+            } finally {
+                if (telegramChatId == 0) {
+                    telegramChatId = Hauptklasse.telegramChatId;
+                }
+            }
+
 
             if (!black) {
                 System.out.println("Update Modul: " + kurs.getID() + " | " + kursname);
@@ -212,6 +234,7 @@ public class Hauptklasse {
                     //Check, if the file needs to be downloaded again, do it and add the Message to the Message-List
                     if (!studipfile.exists() || !aktuell) {
                         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd.MM.yyyy");
+
                         if (studipfile.exists()) {
                             Sout("Datei " + file.getName() + " ist nicht mehr aktuell. Datei: " + sdf.format(studipfile.lastModified()) + " / StudIP: " + sdf.format(file.getLastChanged().getTime()) + "Aktualisiere...");
                             updatedfiles += "[" + file.getName() + "](" + file.getLink() + ")\n";
@@ -247,6 +270,7 @@ public class Hauptklasse {
                 }
             }
         }
+        modullist.saveProperties();
         if (sendMessages == 0) System.out.println("Keine neuen Nachrichten!");
 
     }

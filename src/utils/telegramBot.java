@@ -19,8 +19,8 @@ public class telegramBot {
      * @param text    the text
      * @param send    the send
      */
-    public static void sendMessage(String chat_id, String text, parseMode type, boolean send) {
-        if (chat_id.equals("")) return;
+    public static void sendMessage(long chat_id, String text, parseMode type, boolean send) {
+        if (chat_id != 0) return;
         text = text.replace("\"", "\\\"");
         String data = "{\"chat_id\":\"" + chat_id + "\"" + (type != parseMode.TEXT ? ",\"parse_mode\":\"" + type.name() + "\"" : "") + ",\"text\":\"" + text + "\"}";
         if (type == parseMode.HTML) data = data.replaceAll("\n", "<br>");
