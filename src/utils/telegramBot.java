@@ -17,11 +17,13 @@ public class telegramBot {
      *
      * @param chat_id the chat id
      * @param text    the text
+     * @param type    the type
      * @param send    the send
      */
-    public static void sendMessage(long chat_id, String text, parseMode type, boolean send) {
-        if (chat_id != 0) return;
-        text = text.replace("\"", "\\\"");
+    public static void sendMessage(int chat_id, String text, parseMode type, boolean send) {
+        if (chat_id == 0) return;
+        if (text.contains("\""))
+            text = text.replace("\"", "\\\"");
         String data = "{\"chat_id\":\"" + chat_id + "\"" + (type != parseMode.TEXT ? ",\"parse_mode\":\"" + type.name() + "\"" : "") + ",\"text\":\"" + text + "\"}";
         if (type == parseMode.HTML) data = data.replaceAll("\n", "<br>");
         if (send) {
@@ -32,25 +34,13 @@ public class telegramBot {
     }
 
     /**
-     * Instantiates a new Telegram bot.
-     *
-     * @param token the token
-     */
-    public telegramBot(String token) {
-        TOKEN = token;
-
-    }
-
-    /**
-     * Function to Push the Content of the given Data to ioBroker
+     * Function to Push the Content of the given Data to the http endpoint
      *
      * @param Data       The Data
      * @param methodname The Method Name
      * @param send       If the Message should be send
      */
     private static void httpPost(String Data, String methodname, boolean send) {
-        //JSON Body, with Informations IFTTT can use and you can use to Modify the Push-Notification
-
         //Nachricht senden, wenn sie gesendet werden soll
         if (send) {
             int trys = 1;
@@ -72,7 +62,7 @@ public class telegramBot {
                     //Antwortnachricht lesen
                     InputStream in = new BufferedInputStream(conn.getInputStream());
                     String result = convertStreamToString(in);
-                    System.out.println(result);
+                    //System.out.println(result);
                     //TODO Was ist mit der Response? Evtl. Fehlercode?
 
                     os.close();
@@ -91,9 +81,72 @@ public class telegramBot {
 
     }
 
+    /**
+     * Instantiates a new Telegram bot.
+     *
+     * @param token the token
+     */
+    public telegramBot(String token) {
+        TOKEN = token;
+
+    }
+
+    private static String httpGet(String methodname, boolean send) {
+        //Nachricht senden, wenn sie gesendet werden soll
+        if (send) {
+            int trys = 1;
+            do {
+                try {
+                    //URL erstellen, HTTP Post mit übergebenen Daten durchführen
+                    URL url = new URL("https://api.telegram.org/bot" + TOKEN + "/" + methodname);
+                    HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+                    conn.setConnectTimeout(5000);
+                    conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                    conn.setDoOutput(false);
+                    conn.setDoInput(true);
+                    conn.setRequestMethod("GET");
+
+                    //Antwortnachricht lesen
+                    InputStream in = new BufferedInputStream(conn.getInputStream());
+                    String result = convertStreamToString(in);
+                    //TODO Was ist mit der Response? Evtl. Fehlercode?
+
+                    conn.disconnect();
+                    trys = 0;
+                    return result;
+                } catch (Exception e) {
+                    if (trys > 2) {
+                        System.err.println("Failed to connect. Down?");
+                        System.err.println(e.getMessage());
+                    }
+                    trys++;
+                }
+            } while (trys > 0 && trys < 4);
+        }
+
+
+        return null;
+    }
+
+    public static String getUpdates() {
+        return httpGet("getUpdates", true);
+    }
+
+    /**
+     * The enum Parse mode.
+     */
     public enum parseMode {
+        /**
+         * Html parse mode.
+         */
         HTML,
+        /**
+         * Markdown parse mode.
+         */
         MARKDOWN,
+        /**
+         * Text parse mode.
+         */
         TEXT
     }
 

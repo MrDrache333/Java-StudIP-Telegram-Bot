@@ -1,6 +1,8 @@
 import com.gargoylesoftware.htmlunit.WebClient;
 import javafx.stage.Stage;
 import objects.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import utils.Settings;
 import utils.telegramBot;
 
@@ -9,6 +11,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.Scanner;
 
 import static utils.Debugger.Sout;
@@ -56,7 +59,7 @@ public class Hauptklasse {
      */
     private static boolean TESTING = false;
     private static telegramBot TelegramBot;
-    private static long telegramChatId = 0;
+    private static int telegramChatId = 0;
     private static File DownloadPath = new File("StudIP/Files/");
 
     /**
@@ -65,9 +68,6 @@ public class Hauptklasse {
      * @param args the input arguments
      */
     public static void main(String[] args) {
-
-        //TODO Configure ChatID's in the INIT-Function
-        telegramChatId = -396426700;    //Gruppe
 
         try {
             //Uni erstellen mit nötigen Links
@@ -93,12 +93,36 @@ public class Hauptklasse {
         if (args.length > 0) {
             //Wenn das Programm getestet wird den Testmodus einschalten
             if (args[0].equals("TEST")) {
+
                 System.out.println("TESTMODUS");
                 TESTING = true;
-                //TODO Configure ChatID's in the INIT
-                telegramChatId = 895714744;    //Privat
             } else if (args[0].equals("INIT")) {
                 init();
+            } else if (args[0].equals("configure") && args.length == 2) {
+                switch (args[1]) {
+                    case "telegramDefaultChatId": {
+                        Sout("--- Configuration of the default Telegram-Chat-ID ---");
+                        //Create a new Telegram_bot
+                        if (!programSettings.loadProperties()) {
+                            Sout("Reconfigure Bot using \"INIT\" Parameter");
+                            System.exit(0);
+                        }
+                        final String token = programSettings.getProperty("telegram.token");
+                        if (token.equals("")) {
+                            Sout("Failed to load Telegram Token");
+                            Sout("Reconfigure Bot using \"INIT\" Parameter");
+                            System.exit(0);
+
+                        }
+                        TelegramBot = new telegramBot(token);
+                        programSettings.setProperty("telegram.defaultChatId", "" + configureDefaultTelegramChatId());
+                        programSettings.saveProperties();
+
+                        Sout("Your default Telegram Chat-ID is now set to: " + programSettings.getProperty("telegram.defaultChatId"));
+                        System.exit(0);
+                        break;
+                    }
+                }
             }
 
         }
@@ -121,6 +145,14 @@ public class Hauptklasse {
             //Create a new Telegram_bot
             TelegramBot = new telegramBot(programSettings.getProperty("telegram.token"));
 
+            //Read Default ChatId
+            try {
+                telegramChatId = Integer.parseInt(programSettings.getProperty("telegram.defaultChatId"));
+            } catch (Exception e) {
+                Sout("FEHLER -> Die Standard-Telegram-ChatId konnte nicht gelesen werden. Konfiguriere diesen Bot neu mit dem Startparameter \"INIT\"");
+                System.exit(404);
+            }
+
             login(programSettings.getProperty("login_username"), programSettings.getProperty("login_password"));
         } else {
             //Reset the config file, if something is corrupt
@@ -137,11 +169,15 @@ public class Hauptklasse {
         while ((user = in.nextLine()).equals("")) {
             Sout("Der Benutzername darf nicht leer sein:");
         }
+        programSettings.setProperty("login_username", user);
+
+        //Passwort
         Sout("Gebe dein Passwort für " + user + " ein:");
         String pass;
         while ((pass = in.nextLine()).equals("")) {
             Sout("Das Passwort darf nicht leer sein:");
         }
+        programSettings.setProperty("login_password", pass);
 
         //Try to login
         try {
@@ -159,16 +195,53 @@ public class Hauptklasse {
         while ((token = in.nextLine()).equals("")) {
             Sout("Der Token darf nicht leer sein:");
         }
-
-        //TODO Check connection to Bot for better INIT
-
+        TelegramBot = new telegramBot(token);
         programSettings.setProperty("telegram.token", token);
-        programSettings.setProperty("login_username", user);
-        programSettings.setProperty("login_password", pass);
+
+        long chatId = configureDefaultTelegramChatId();
+        programSettings.setProperty("telegram.defaultChatId", "" + chatId);
+
         if (programSettings.saveProperties()) {
             Sout("Settings: Info: Successfully stored Settings at \"" + programSettings.getFile().getName() + "\"");
         } else
             writeerror(new Exception("Settings: Info: Failed store Settings at \"" + programSettings.getFile().getName() + "\""));
+        System.exit(0);
+    }
+
+    private static long configureDefaultTelegramChatId() {
+        //Telegram Default ChatId
+        Sout("Füge den Bot als Admin in deiner Gruppe hinzu und schreibe ihn an, oder direkt. Schreibe Ihm folgende Indentifikations-ID:");
+        int rand = Math.abs(new Random().nextInt());
+        Sout("\"" + rand + "\"");
+        Sout("Warte auf Nachricht...(Abbruch: Strg+C)");
+        int chatId = 0;
+        while (chatId == 0) {
+            try {
+                String response = telegramBot.getUpdates();
+                //System.out.println(response);
+                JSONObject json = new JSONObject(response);
+                JSONArray messages = json.getJSONArray("result");
+                for (int i = 0; i < messages.length(); i++) {
+                    JSONObject message = messages.getJSONObject(i);
+                    String id = message.getJSONObject("message").getString("text");
+                    if (id.equals("" + rand)) {
+                        chatId = message.getJSONObject("message").getJSONObject("chat").getInt("id");
+                        telegramBot.sendMessage(chatId, "Configuration Successfull!\nYour ChatId is: " + chatId, telegramBot.parseMode.TEXT, true);
+                        return chatId;
+                    }
+                }
+
+            } catch (Exception e) {
+                chatId = 0;
+            }
+            if (chatId == 0) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        }
+        return chatId;
     }
 
     //Lgoin, Data fetching and Telegram Push
@@ -190,6 +263,7 @@ public class Hauptklasse {
             System.exit(0);
         }
         //At this Point the User is successfully loged in
+        //TODO
 
         int sendMessages = 0;
         //Kurse nach Updates untersuchen
@@ -209,9 +283,9 @@ public class Hauptklasse {
             }
 
             //Load the specific ChatId for Telegram
-            long telegramChatId = 0;
+            int telegramChatId = 0;
             try {
-                telegramChatId = Long.parseLong(modullist.getProperty(kurs.getID()) + ".telegramChatId");
+                telegramChatId = Integer.parseInt(modullist.getProperty(kurs.getID() + ".telegramChatId"));
             } catch (Exception e) {
                 modullist.setProperty(kurs.getID() + ".telegramChatId", "0");
             } finally {
@@ -219,7 +293,7 @@ public class Hauptklasse {
                     telegramChatId = Hauptklasse.telegramChatId;
                 }
             }
-
+            if (TESTING) telegramChatId = Hauptklasse.telegramChatId;
 
             if (!black) {
                 System.out.println("Update Modul: " + kurs.getID() + " | " + kursname);
@@ -255,19 +329,21 @@ public class Hauptklasse {
                     String header = "📄 _" + kursname + "_ 📄";
                     telegramBot.sendMessage(telegramChatId, header + updatedfiles + newfiles, telegramBot.parseMode.MARKDOWN, true);
                 }
+
+                //Check if the Course has any new News to push
+                if (kurs.isHasNewNews()) {
+                    //Neue News abrufen
+                    ArrayList<News> newNews = kurs.getNews(webClient, "https://elearning.uni-oldenburg.de/dispatch.php/course/overview?cid=", !TESTING);
+
+                    //Because there are potential large Posts, post any News Message as a unique Message to Telegram
+                    for (News news : newNews) {
+                        telegramBot.sendMessage(telegramChatId, "📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), telegramBot.parseMode.MARKDOWN, true);
+                        sendMessages++;
+                    }
+                }
+
             } else {
                 Sout("Modul " + kursname + " übersprungen!");
-            }
-            //Check if the Course has any new News to push
-            if (kurs.isHasNewNews()) {
-                //Neue News abrufen
-                ArrayList<News> newNews = kurs.getNews(webClient, "https://elearning.uni-oldenburg.de/dispatch.php/course/overview?cid=", !TESTING);
-
-                //Because there are potential large Posts, post any News Message as a unique Message to Telegram
-                for (News news : newNews) {
-                    telegramBot.sendMessage(telegramChatId, "📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), telegramBot.parseMode.MARKDOWN, true);
-                    sendMessages++;
-                }
             }
         }
         modullist.saveProperties();
