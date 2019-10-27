@@ -168,7 +168,7 @@ public class Kurs {
             Document Content = Jsoup.parse(page.asXml());
             //System.out.println(page.asText());
             //Neue News filtern
-            Elements articles = Content.select(".studip .toggle .new"); //.new
+            Elements articles = Content.select(".studip .new"); //.new
             for (Element article : articles) {
                 //News auslesen und als gelesen markieren
                 News news = new News(article.select("h1").text(), article.select(".formatted-content").text(), article.getElementsByAttribute("id").get(0).attr("id"));
