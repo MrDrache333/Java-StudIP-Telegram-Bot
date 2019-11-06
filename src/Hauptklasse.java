@@ -4,6 +4,7 @@ import objects.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import utils.Settings;
+import utils.WebHook;
 import utils.telegramBot;
 
 import java.io.File;
@@ -282,6 +283,16 @@ public class Hauptklasse {
                 modullist.setProperty(kurs.getID() + ".blacklisted", "" + black);
             }
 
+            //Load the specific sendType
+            int sendtype;
+            try {
+                sendtype = Integer.parseInt(modullist.getProperty(kurs.getID() + ".sendType"));
+                if (sendtype < 0 | sendtype > 3) sendtype = 1;   //Set Default sendType Value if invalid
+            } catch (Exception e) {
+                sendtype = 1;
+                modullist.setProperty(kurs.getID() + ".sendType", "1");
+            }
+
             //Load the specific ChatId for Telegram
             int telegramChatId = 0;
             try {
@@ -294,6 +305,15 @@ public class Hauptklasse {
                 }
             }
             if (TESTING) telegramChatId = Hauptklasse.telegramChatId;
+
+            //Load the specific WebHook
+            WebHook webhook = null;
+            try {
+                webhook = new WebHook(new URL(modullist.getProperty(kurs.getID() + ".webhook")));
+            } catch (Exception e) {
+                modullist.setProperty(kurs.getID() + ".webhook", "");
+            }
+            if (webhook == null) sendtype = 1;
 
             if (!black) {
                 System.out.println("Update Modul: " + kurs.getID() + " | " + kursname);
@@ -327,7 +347,22 @@ public class Hauptklasse {
                 }
                 if (!newfiles.equals("") || !updatedfiles.equals("")) {
                     String header = "📄 _" + kursname + "_ 📄";
-                    telegramBot.sendMessage(telegramChatId, header + updatedfiles + newfiles, telegramBot.parseMode.MARKDOWN, true);
+                    switch (sendtype) {
+                        case 1: {
+                            telegramBot.sendMessage(telegramChatId, header + updatedfiles + newfiles, telegramBot.parseMode.MARKDOWN, true);
+                            break;
+                        }
+                        case 2: {
+                            webhook.httpGet(header + updatedfiles + newfiles, true);
+                            break;
+                        }
+                        case 3: {
+                            telegramBot.sendMessage(telegramChatId, header + updatedfiles + newfiles, telegramBot.parseMode.MARKDOWN, true);
+                            webhook.httpGet(header + updatedfiles + newfiles, true);
+                            break;
+                        }
+                    }
+
                 }
 
                 //Check if the Course has any new News to push
@@ -337,7 +372,21 @@ public class Hauptklasse {
 
                     //Because there are potential large Posts, post any News Message as a unique Message to Telegram
                     for (News news : newNews) {
-                        telegramBot.sendMessage(telegramChatId, "📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), telegramBot.parseMode.MARKDOWN, true);
+                        switch (sendtype) {
+                            case 1: {
+                                telegramBot.sendMessage(telegramChatId, "📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), telegramBot.parseMode.MARKDOWN, true);
+                                break;
+                            }
+                            case 2: {
+                                webhook.httpGet("📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), true);
+                                break;
+                            }
+                            case 3: {
+                                telegramBot.sendMessage(telegramChatId, "📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), telegramBot.parseMode.MARKDOWN, true);
+                                webhook.httpGet("📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), true);
+                                break;
+                            }
+                        }
                         sendMessages++;
                     }
                 }
