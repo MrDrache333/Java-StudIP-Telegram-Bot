@@ -30,7 +30,7 @@ Yes. This Bot works using a virtual Browser instance to comunicate with StudIP. 
 7. ...
 8. Profit?
 
-##WebHooks
+## WebHooks
 You can use WebHooks/ HTTP-POT Requests with this Bot too. Simply edit the modulelist.stud and change the following Attributes:
 
 `
