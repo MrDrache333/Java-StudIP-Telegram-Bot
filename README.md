@@ -14,9 +14,11 @@ Proof of Concept Java StudIP Telegram Bot
  
  ### FAQ
  *Our StudI-Api is not activated. Will it still work?*
+ 
 Yes. This Bot works using a virtual Browser instance to comunicate with StudIP. So no API is needet :)
 
  *Can i use Webhooks too?*
+ 
  Yes you can.
 
 ## Installation
@@ -31,7 +33,7 @@ Yes. This Bot works using a virtual Browser instance to comunicate with StudIP. 
 8. Profit?
 
 ## WebHooks
-You can use WebHooks/ HTTP-POT Requests with this Bot too. Simply edit the modulelist.stud and change the following Attributes:
+You can use WebHooks/ HTTP-POST Requests with this Bot too. Simply edit the `modulelist.stud` File and change the following Attributes:
 
 `
 moduleId.sendType:
