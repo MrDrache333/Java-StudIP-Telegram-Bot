@@ -29,7 +29,6 @@ public class StudIPFile {
         this.Link = link;
         this.isNew = false;
         this.Path = "";
-        this.lastChanged = new Date();
     }
 
     /**

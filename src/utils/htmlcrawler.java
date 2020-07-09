@@ -18,7 +18,7 @@ import java.net.URL;
  */
 public class htmlcrawler {
 
-    private WebClient webClient;
+    private final WebClient webClient;
 
     /**
      * Instantiates a new Htmlcrawler.
@@ -84,7 +84,7 @@ public class htmlcrawler {
             public void webWindowContentChanged(WebWindowEvent event) {
                 Page page = event.getNewPage();
                 //System.out.println(page.getUrl());
-                String Path = output.getPath().substring(0, output.getPath().lastIndexOf("/") + 1);
+                String Path = output.getPath().contains("/") ? output.getPath().substring(0, output.getPath().lastIndexOf("/") + 1) : output.getPath();
                 if (!new File(Path).exists()) new File(Path).mkdirs();
                 FileOutputStream fos = null;
                 InputStream is = null;
@@ -113,7 +113,7 @@ public class htmlcrawler {
                         }
                     }
                 } else {
-                    System.out.println("Fehler beim speichern der Datei " + output.getName());
+                    System.out.println("Fehler beim speichern der Datei " + output.getName() + " nach " + output.getPath());
                 }
             }
 

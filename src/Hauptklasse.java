@@ -48,9 +48,9 @@ public class Hauptklasse {
     /**
      * The constant programSettings.
      */
-    private static Settings programSettings = new Settings(new File("config.xml"), false);
-    private static Settings filelist = new Settings(new File("filelist.stud"), false);
-    private static Settings modullist = new Settings(new File("modullist.stud"), false);
+    private static final Settings programSettings = new Settings(new File("config.xml"), false);
+    private static final Settings filelist = new Settings(new File("filelist.stud"), false);
+    private static final Settings modullist = new Settings(new File("modullist.stud"), false);
     /**
      * The constant programStorage.
      */
@@ -61,7 +61,7 @@ public class Hauptklasse {
     private static boolean TESTING = false;
     private static telegramBot TelegramBot;
     private static int telegramChatId = 0;
-    private static File DownloadPath = new File("StudIP/Files/");
+    private static final File DownloadPath = new File("StudIP/Files/");
 
     /**
      * The entry point of application.
@@ -324,7 +324,7 @@ public class Hauptklasse {
                 for (StudIPFile file : Files) {
                     File studipfile = new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName());
                     //Check, if the File is up to Date
-                    boolean aktuell = studipfile.exists() && studipfile.lastModified() >= file.getLastChanged().getTime();
+                    boolean aktuell = studipfile.exists() && (file.getLastChanged() == null || studipfile.lastModified() >= file.getLastChanged().getTime());
                     //Check, if the file needs to be downloaded again, do it and add the Message to the Message-List
                     if (!studipfile.exists() || !aktuell) {
                         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd.MM.yyyy");
@@ -349,16 +349,16 @@ public class Hauptklasse {
                     String header = "📄 _" + kursname + "_ 📄";
                     switch (sendtype) {
                         case 1: {
-                            telegramBot.sendMessage(telegramChatId, header + updatedfiles + newfiles, telegramBot.parseMode.MARKDOWN, true);
+                            telegramBot.sendMessage(telegramChatId, header + updatedfiles + newfiles, telegramBot.parseMode.MARKDOWN, !TESTING);
                             break;
                         }
                         case 2: {
-                            webhook.httpGet(header + updatedfiles + newfiles, true);
+                            webhook.httpGet(header + updatedfiles + newfiles, !TESTING);
                             break;
                         }
                         case 3: {
-                            telegramBot.sendMessage(telegramChatId, header + updatedfiles + newfiles, telegramBot.parseMode.MARKDOWN, true);
-                            webhook.httpGet(header + updatedfiles + newfiles, true);
+                            telegramBot.sendMessage(telegramChatId, header + updatedfiles + newfiles, telegramBot.parseMode.MARKDOWN, !TESTING);
+                            webhook.httpGet(header + updatedfiles + newfiles, !TESTING);
                             break;
                         }
                     }
@@ -378,12 +378,12 @@ public class Hauptklasse {
                                 break;
                             }
                             case 2: {
-                                webhook.httpGet("📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), true);
+                                webhook.httpGet("📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), !TESTING);
                                 break;
                             }
                             case 3: {
                                 telegramBot.sendMessage(telegramChatId, "📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), telegramBot.parseMode.MARKDOWN, true);
-                                webhook.httpGet("📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), true);
+                                webhook.httpGet("📰 _" + kursname + "_ 📰\n*" + news.getTitle() + "*\n" + news.getText(), !TESTING);
                                 break;
                             }
                         }
@@ -392,7 +392,7 @@ public class Hauptklasse {
                 }
 
             } else {
-                Sout("Modul " + kursname + " übersprungen!");
+                Sout("Modul " + kursname + " | " + kurs.getID() + " übersprungen!");
             }
         }
         modullist.saveProperties();
