@@ -331,10 +331,16 @@ public class Hauptklasse {
 
                         if (studipfile.exists()) {
                             Sout("Datei " + file.getName() + " ist nicht mehr aktuell. Datei: " + sdf.format(studipfile.lastModified()) + " / StudIP: " + sdf.format(file.getLastChanged().getTime()) + "Aktualisiere...");
-                            updatedfiles += "[" + file.getName() + "](" + file.getLink() + ")\n";
-                        } else
-                            newfiles += "[" + file.getName() + "](" + file.getLink() + ")\n";
-                        utils.htmlcrawler.DownloadFile(webClient, file.getLink(), new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName()));
+                            studipfile.delete();
+                            utils.htmlcrawler.DownloadFile(webClient, file.getLink(), new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName()));
+                            if (studipfile.exists())
+                                updatedfiles += "[" + file.getName() + "](" + file.getLink() + ")\n";
+                        } else {
+                            utils.htmlcrawler.DownloadFile(webClient, file.getLink(), new File(DownloadPath.getPath() + "/" + kursname.replace(" ", "_") + "/" + file.getPath() + file.getName()));
+                            if (studipfile.exists())
+                                newfiles += "[" + file.getName() + "](" + file.getLink() + ")\n";
+                        }
+
 
                     }
                 }
