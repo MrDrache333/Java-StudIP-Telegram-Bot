@@ -37,9 +37,7 @@ You can use WebHooks/ HTTP-POST Requests with this Bot too. Simply edit the `mod
 
 `
 moduleId.sendType:
-1 = Only Telegram,
-2 = Only WebHook,
-3 = Both
+1 = Only Telegram, 2 = Only WebHook, 3 = Both
 `
 `moduleId.webhook: WebHook-URL`
 
@@ -48,13 +46,16 @@ Data would be send as UTF-8 encoded json Object.
 `{"content":"Content as Text"
 }`
 
+## Compatibility tested
+
+- University of Oldenburg: 15.04.2021
+
 
 ## Roadmap
 
 - More settings, customisation
 - Better commandline Interface
 - Optimise Code a Lot
-- Add a Ton of Documentation
-etc.
+- Add a Ton of Documentation etc.
 
 MORE WILL FOLLOW
