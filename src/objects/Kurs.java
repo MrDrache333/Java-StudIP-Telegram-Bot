@@ -2,6 +2,8 @@ package objects;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -60,36 +62,21 @@ public class Kurs {
                 HtmlPage filespage = webClient.getPage(FilesPage + "?cid=" + ID);
                 Document FilePageContent = Jsoup.parse(filespage.asXml());
                 //Dateieinträge in Tabelle finden
-                Elements Files = FilePageContent.getElementsByAttributeValueStarting("id", "fileref_");
-                for (Element File : Files) {
+                JSONArray Files = new JSONArray(FilePageContent.getElementById("files_table_form").attr("data-files"));
+                for (int i = 0; i < Files.length(); i++) {
                     try {
+                        JSONObject File = Files.getJSONObject(i);
                         //Prüfen auf Alter
-                        boolean neu = false;
-                        try {
-                            neu = File.attr("class").equals("new");
-                        } catch (Exception e) {
-                        }
+                        boolean neu = File.getBoolean("new");
 
                         //Dateiname auslesen
-                        String FileName = "";
-                        try {
-
-                            FileName = File.getElementsByAttributeValueContaining("href", "file/details").get(0).text();
-                            if (FileName.contains("[")) FileName = FileName.replace("[", "");
-                            if (FileName.contains("]")) FileName = FileName.replace("]", "");
-                            if (FileName.contains("(")) FileName = FileName.replace("(", "");
-                            if (FileName.contains(")")) FileName = FileName.replace(")", "");
-                        } catch (Exception e) {
-                        }
-
+                        String FileName = File.getString("name");
 
                         //Downloadlink auslesen
-                        Element FileLink = File.getElementsByAttributeValueStarting("href", FileDownloadLink.toString()).get(0);
-                        String BaseUrl = FileLink.attr("href");
-                        String id = BaseUrl.substring(BaseUrl.indexOf("file_id=") + 8);
-                        id = id.substring(0, id.indexOf("&"));
-                        String fileName = BaseUrl.substring(BaseUrl.indexOf("file_name=") + 10);
-                        StudIPFile file = new StudIPFile(id, FileName.equals("") ? fileName : FileName, new URL(BaseUrl));
+                        String BaseUrl = File.getString("download_url");
+                        String id = File.getString("id");
+
+                        StudIPFile file = new StudIPFile(id, FileName, new URL(BaseUrl));
                         file.setNew(neu);
 
                         //Speicherort und Änderungsdatum auslesen
@@ -100,8 +87,8 @@ public class Kurs {
                             Document DetailPage = Jsoup.parse(detailpage.asXml());
                             Elements folders = DetailPage.getElementById("preview_container").getElementsByAttribute("href");
                             String path = "";
-                            for (int i = 1; i < folders.size(); i++) {
-                                Element Folder = folders.get(i);
+                            for (int x = 1; x < folders.size(); x++) {
+                                Element Folder = folders.get(x);
                                 String folder = Folder.text();
                                 if (folder.charAt(0) == ' ') folder = folder.substring(1);
                                 if (folder.charAt(folder.length() - 1) == ' ')
@@ -113,8 +100,8 @@ public class Kurs {
 
                             //Änderungsdatum auslesen
                             Elements table = DetailPage.getElementsByTag("tr");
-                            for (int i = 0; i < table.size(); i++) {
-                                Element tr = table.get(i);
+                            for (int x = 0; x < table.size(); x++) {
+                                Element tr = table.get(x);
                                 if (tr.text().toLowerCase().contains("geändert") || tr.text().toLowerCase().contains("changed")) {
                                     SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
                                     Date date = df.parse(tr.getElementsByTag("td").get(1).text());
