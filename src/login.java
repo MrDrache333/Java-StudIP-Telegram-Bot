@@ -12,6 +12,7 @@ import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 import utils.htmlcrawler;
 
+import javax.security.auth.login.LoginException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Date;
@@ -64,13 +65,13 @@ public class login {
             page = form.getButtonByName("login").click();
 
             //login abgeschlossen verifizieren durch Nachricht im footer
-            HtmlDivision footer = page.getHtmlElementById("footer");
-            System.out.println("\t" + footer.getFirstChild().asText());
-            String user = footer.getFirstChild().asText().replace("Sie sind angemeldet als ", "").replace("You are signed in as ", "");
-            user = user.substring(0, user.indexOf('(') - 1);
+            HtmlDivision footer = page.getHtmlElementById("header_avatar_menu");
+            if (footer == null) {
+                throw new LoginException();
+            }
 
             currentUser[0] = new User(UserID, Passwort);
-            currentUser[0].setName(user);
+            currentUser[0].setName("user");
             currentUser[0].getStudIP_Data().setMainPage(page);
             //System.out.println("\t\t- Got MainPage for " + user);
             //currentUser[0].getStudIP_Data().setProfil(Hauptklasse.webClient.getPage(Hauptklasse.currentUni.getProfilePage()));
@@ -78,7 +79,7 @@ public class login {
             //System.out.println("\t\t- Got Profile for " + user);
             currentUser[0].getStudIP_Data().setModules(Hauptklasse.webClient.getPage(Hauptklasse.currentUni.getCoursesPage()));
 
-            System.out.println("\t\t- Got Courses for " + user);
+            System.out.println("\t\t- Got Courses for " + currentUser[0].getName());
 
             System.out.println("\tFetched user data successfully.");
             System.out.println("\tTime used: " + formatTime(new Date().getTime() - startDate));
