@@ -127,12 +127,13 @@ public class Hauptklasse {
             }
 
         }
+        /*
         //Try to read the filelist
         if (filelist.loadProperties()) {
             utils.Debugger.Sout("Filelist: Successfully loadet filelist stored in \"" + filelist.getFile().getName() + "\"");
         } else
             utils.Debugger.Sout("Filelist: Failed loading filelist stored in \"" + filelist.getFile().getName() + "\"");
-
+        */
         //Try to read Modulelist
         if (modullist.loadProperties()) {
             utils.Debugger.Sout("Modullist: Successfully loadet Modullist stored in \"" + modullist.getFile().getName() + "\"");
@@ -187,6 +188,10 @@ public class Hauptklasse {
         } catch (Exception e) {
             Sout("Falsche Logindaten");
             e.printStackTrace();
+        }
+        if (currentUser.getName().equals("") || currentUser.getPassword().equals("")) {
+            Sout("Falsche Logindaten");
+            System.exit(403);
         }
         Sout("Erfolgreich angemeldet!");
 

@@ -6,22 +6,24 @@ Proof of Concept Java StudIP Telegram Bot
 ## Overview
 
 *What will this Bot do?*
- - It will simply login to your StudIP-Account using your Credentials (Stored localy and secure)
- - It will grab your Accountinformations, Courses and Informations about the Courses
- - It will verify that there are Updates avaiable (News or Files)
- - It will download new Files and create a Filesturcture analog to StudIP (Easy to Sync to NAS for example)
- - It will automatically format and push these Informations to a Telegram Chat using your own Bot
- 
- ### FAQ
- *Our StudI-Api is not activated. Will it still work?*
- 
+
+- It will simply login to your StudIP-Account using your Credentials (Stored localy and secure)
+- It will grab your Accountinformations, Courses and Informations about the Courses
+- It will verify that there are Updates avaiable (News or Files)
+- It will download new Files and create a Filesturcture analog to StudIP (Easy to Sync to NAS for example)
+- It will automatically format and push these Informations to a Telegram Chat using your own Bot
+
+### FAQ
+
+*Our StudI-Api is not activated. Will it still work?*
+
 Yes. This Bot works using a virtual Browser instance to comunicate with StudIP. So no API is needet :)
 
- *Can i use Webhooks too?*
- 
- Yes you can.
+*Can i use Webhooks too?*
 
-## Installation
+Yes you can.
+
+## Installation (without Docker)
 
 1. Download this Bot
 2. Verify that Java 8 JRE is installed on your machine
@@ -32,8 +34,27 @@ Yes. This Bot works using a virtual Browser instance to comunicate with StudIP. 
 7. ...
 8. Profit?
 
+## Installation (with Docker)
+
+1. Make sure you've installed Docker on your machine
+2. Create a Telegram Bot (Simply create a Chat with [@BotFather](https://t.me/BotFather))
+3. Copy the API-Key
+4. Download and start the container once for configuration
+
+`
+docker run -i --name=StudIP-Telegram mrdrache333/studip-telegram
+`
+
+5. Start the Container again evey time you want to ceck for Updates
+
+`
+docker start StudIP-Telegram
+`
+
 ## WebHooks
-You can use WebHooks/ HTTP-POST Requests with this Bot too. Simply edit the `modulelist.stud` File and change the following Attributes:
+
+You can use WebHooks/ HTTP-POST Requests with this Bot too. Simply edit the `modulelist.stud` File and change the
+following Attributes:
 
 `
 moduleId.sendType:
