@@ -1,4 +1,4 @@
-package objects;
+package studip.api.types;
 
 import java.net.URL;
 import java.util.Date;

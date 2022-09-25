@@ -1,4 +1,4 @@
-package objects;
+package studip.api.types;
 
 /**
  * The type News.
