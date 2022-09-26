@@ -11,8 +11,8 @@ import java.util.Date;
  */
 public class Debugger {
 
-    private static File detaillog = new File("temp/detaillog.log");
-    private static File logfile = new File("temp/log.log");
+    private static final File detaillog = new File("temp/detaillog.log");
+    private static final File logfile = new File("temp/log.log");
 
     private static String lastoutput;
 

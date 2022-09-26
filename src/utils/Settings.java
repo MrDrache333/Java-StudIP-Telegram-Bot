@@ -22,11 +22,11 @@ import static utils.Debugger.writeerror;
  */
 public class Settings {
 
-    private static ArrayList<String[]> liste = new ArrayList<>();
+    private static final ArrayList<String[]> liste = new ArrayList<>();
 
-    private Properties props;   //Eigenschaften
-    private File Savefile;  //Datei zum speichern und laden
-    private boolean Protect;
+    private final Properties props;   //Eigenschaften
+    private final File Savefile;  //Datei zum speichern und laden
+    private final boolean Protect;
 
     /**
      * Instantiates a new Settings.

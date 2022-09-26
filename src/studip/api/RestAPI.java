@@ -2,6 +2,7 @@ package studip.api;
 
 import studip.api.request.AuthenticatedAPIRequest;
 import studip.api.request.RequestResponse;
+import studip.api.types.Credentials;
 import studip.api.types.StudIPFile;
 
 import java.io.IOException;

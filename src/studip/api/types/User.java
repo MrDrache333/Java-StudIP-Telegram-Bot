@@ -19,7 +19,7 @@ public class User {
 
     private String Name;        //Name des Benutzers
     private String userName;
-
+    private Credentials credentials;
     private ArrayList<Kurs> Kurse;
 
 
@@ -27,8 +27,15 @@ public class User {
      * Instantiates a new User.
      */
     public User() {
-
         this.Kurse = new ArrayList<>();
+    }
+
+    public Credentials getCredentials() {
+        return credentials;
+    }
+
+    public void setCredentials(Credentials credentials) {
+        this.credentials = credentials;
     }
 
     /**

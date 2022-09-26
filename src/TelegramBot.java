@@ -1,16 +1,71 @@
-package utils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Random;
+
+import static utils.Debugger.Sout;
 
 /**
  * The type Telegram bot.
  */
-public class telegramBot {
+public class TelegramBot {
 
     private static String TOKEN;
+
+    /**
+     * Instantiates a new Telegram bot.
+     *
+     * @param token the token
+     */
+    public TelegramBot(String token) {
+        TOKEN = token;
+
+    }
+
+    /**
+     * Configure default telegram chat id long.
+     *
+     * @return the long
+     */
+    public long configureDefaultTelegramChatId() {
+        //Telegram Default ChatId
+        Sout("Füge den Bot als Admin in deiner Gruppe hinzu und schreibe ihn an, oder direkt. Schreibe Ihm folgende Indentifikations-ID:");
+        int rand = Math.abs(new Random().nextInt());
+        Sout("\"" + rand + "\"");
+        Sout("Warte auf Nachricht...(Abbruch: Strg+C)");
+        int chatId = 0;
+        while (chatId == 0) {
+            try {
+                String response = this.getUpdates();
+                //System.out.println(response);
+                JSONObject json = new JSONObject(response);
+                JSONArray messages = json.getJSONArray("result");
+                for (int i = 0; i < messages.length(); i++) {
+                    JSONObject message = messages.getJSONObject(i);
+                    String id = message.getJSONObject("message").getString("text");
+                    if (id.equals("" + rand)) {
+                        chatId = message.getJSONObject("message").getJSONObject("chat").getInt("id");
+                        this.sendMessage(chatId, "Configuration Successfull!\nYour ChatId is: " + chatId, parseMode.TEXT, true);
+                        return chatId;
+                    }
+                }
+
+            } catch (Exception e) {
+                chatId = 0;
+            }
+            if (chatId == 0) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        }
+        return chatId;
+    }
 
     /**
      * Send message.
@@ -20,7 +75,7 @@ public class telegramBot {
      * @param type    the type
      * @param send    the send
      */
-    public static void sendMessage(int chat_id, String text, parseMode type, boolean send) {
+    public void sendMessage(int chat_id, String text, parseMode type, boolean send) {
         if (chat_id == 0) return;
         if (text.contains("\""))
             text = text.replace("\"", "\\\"");
@@ -40,7 +95,7 @@ public class telegramBot {
      * @param methodname The Method Name
      * @param send       If the Message should be send
      */
-    private static void httpPost(String Data, String methodname, boolean send) {
+    private void httpPost(String Data, String methodname, boolean send) {
         //Nachricht senden, wenn sie gesendet werden soll
         if (send) {
             int trys = 1;
@@ -81,17 +136,7 @@ public class telegramBot {
 
     }
 
-    /**
-     * Instantiates a new Telegram bot.
-     *
-     * @param token the token
-     */
-    public telegramBot(String token) {
-        TOKEN = token;
-
-    }
-
-    private static String httpGet(String methodname, boolean send) {
+    private String httpGet(String methodname, boolean send) {
         //Nachricht senden, wenn sie gesendet werden soll
         if (send) {
             int trys = 1;
@@ -128,30 +173,17 @@ public class telegramBot {
         return null;
     }
 
-    public static String getUpdates() {
+    /**
+     * Gets updates.
+     *
+     * @return the updates
+     */
+    public String getUpdates() {
         return httpGet("getUpdates", true);
     }
 
-    /**
-     * The enum Parse mode.
-     */
-    public enum parseMode {
-        /**
-         * Html parse mode.
-         */
-        HTML,
-        /**
-         * Markdown parse mode.
-         */
-        MARKDOWN,
-        /**
-         * Text parse mode.
-         */
-        TEXT
-    }
-
     //Konvertiert die Eingabe eines InputStreams in einen String und gibt ihn zurück
-    private static String convertStreamToString(InputStream is)
+    private String convertStreamToString(InputStream is)
             throws IOException {
             /*
              * To convert the InputStream to String we use the
@@ -177,6 +209,24 @@ public class telegramBot {
         } else {
             return "";
         }
+    }
+
+    /**
+     * The enum Parse mode.
+     */
+    public enum parseMode {
+        /**
+         * Html parse mode.
+         */
+        HTML,
+        /**
+         * Markdown parse mode.
+         */
+        MARKDOWN,
+        /**
+         * Text parse mode.
+         */
+        TEXT
     }
 
 }

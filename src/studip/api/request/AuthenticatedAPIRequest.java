@@ -1,7 +1,7 @@
 package studip.api.request;
 
 import org.apache.commons.codec.binary.Base64;
-import studip.api.Credentials;
+import studip.api.types.Credentials;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;

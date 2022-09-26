@@ -1,4 +1,4 @@
-package studip.api;
+package studip.api.types;
 
 /**
  * The type Credentials.
