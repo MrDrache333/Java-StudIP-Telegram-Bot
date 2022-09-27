@@ -9,6 +9,7 @@
 package utils;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -26,19 +27,17 @@ public class Settings {
 
     private final Properties props;   //Eigenschaften
     private final File Savefile;  //Datei zum speichern und laden
-    private final boolean Protect;
+
 
     /**
      * Instantiates a new Settings.
      *
-     * @param Saveto  the saveto
-     * @param protect the protect
+     * @param Saveto the saveto
      */
 //Constructor
-    public Settings(File Saveto, boolean protect) {
+    public Settings(File Saveto) {
         this.props = new Properties();
         this.Savefile = Saveto;
-        this.Protect = protect;
     }
 
     /**
@@ -59,11 +58,7 @@ public class Settings {
     public String getProperty(String key) {
         String out = null;
         try {
-            if (Protect) {
-                out = Password.entlock(props.getProperty(Password.lock(key)));
-            } else {
-                out = props.getProperty(key);
-            }
+            out = props.getProperty(key);
         } catch (Exception e) {
             //Sout("Wert: " + key + " wurde nicht in " + Savefile.getName() + " gefunden!");
         }
@@ -82,11 +77,7 @@ public class Settings {
     public void setProperty(String key, String value) {
         if (value.equals("")) value = "null";
         try {
-            if (Protect) {
-                props.setProperty(Password.lock(key), Password.lock(value));
-            } else {
-                props.setProperty(key, value);
-            }
+            props.setProperty(key, value);
         } catch (Exception e) {
             writeerror(e);
         }
@@ -98,15 +89,11 @@ public class Settings {
      * @param key   the key
      * @param value the value
      */
-//Einstellungs Parameter hinzufuegen
+//Einstellungs-Parameter hinzufuegen
     public void addProperty(String key, String value) {
         if (value.equals("")) value = "null";
         try {
-            if (Protect) {
-                props.put(Password.lock(key), Password.lock(value));
-            } else {
-                props.put(key, value);
-            }
+            props.put(key, value);
         } catch (Exception e) {
             writeerror(e);
         }
@@ -119,10 +106,10 @@ public class Settings {
      */
 //Versuchen, die Einstellungen zu laden und je nach erfolg boolean zurueckgeben
     public Boolean loadProperties() {
-        Boolean loaded;
+        boolean loaded;
         try {
             if (this.Savefile.exists()) {   //Wenn die Datei existiert -> Mithilfe von Properties Einstellungen laden
-                InputStream fis = new FileInputStream(this.Savefile);
+                InputStream fis = Files.newInputStream(this.Savefile.toPath());
                 this.props.loadFromXML(fis);
                 fis.close();
                 loaded = true;
@@ -144,7 +131,7 @@ public class Settings {
 //Einstellungen speichern
     public boolean saveProperties() {
         try {   //Versuchen, einstellungen zu speichern und dementsprechend boolean zurueckgeben
-            OutputStream fos = new FileOutputStream(this.Savefile);
+            OutputStream fos = Files.newOutputStream(this.Savefile.toPath());
             this.props.storeToXML(fos, "");
             fos.flush();
             fos.close();

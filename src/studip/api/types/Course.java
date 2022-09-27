@@ -5,12 +5,16 @@ import java.net.URL;
 /**
  * The type Kurs.
  */
-public class Kurs {
+public class Course {
 
     private String Name;        //Name des Kurses
     private String ID;          //ID in Stud.IP
     private String shortID;     //Kennung des Kurses z.B. mat955
     private String StudIpNr;    //Nummer in StudIP z.B. 2.0.18a
+
+    private String startSemester;
+
+    private String endSemester;
 
     private boolean hasNewFiles;    //New Files in Course
     private boolean hasNewPosts;    //New Posts in Forum
@@ -26,7 +30,7 @@ public class Kurs {
      *
      * @param name the name
      */
-    public Kurs(String name) {
+    public Course(String name) {
         this.Name = name;
     }
 
@@ -42,6 +46,23 @@ public class Kurs {
 
 
     //Getter und Setter
+
+
+    public String getStartSemester() {
+        return startSemester;
+    }
+
+    public void setStartSemester(String startSemester) {
+        this.startSemester = startSemester;
+    }
+
+    public String getEndSemester() {
+        return endSemester;
+    }
+
+    public void setEndSemester(String endSemester) {
+        this.endSemester = endSemester;
+    }
 
     /**
      * Is has new news boolean.

@@ -1,13 +1,14 @@
-import studip.api.RestAPI;
+import studip.api.request.APIException;
+import studip.api.types.Course;
 import studip.api.types.Credentials;
 import studip.api.types.Uni;
 import studip.api.types.User;
 import utils.Settings;
-import utils.WebClient;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import static utils.Debugger.Sout;
@@ -21,8 +22,8 @@ public class main {
     /**
      * The constant programSettings.
      */
-    private static final Settings programSettings = new Settings(new File("config.xml"), false);
-    private static final Settings modullist = new Settings(new File("modullist.stud"), false);
+    private static final Settings programSettings = new Settings(new File("config.xml"));
+    private static final Settings modullist = new Settings(new File("modullist.stud"));
     private static final File DownloadPath = new File("StudIP/Files/");
     /**
      * The constant currentUni.
@@ -32,14 +33,10 @@ public class main {
      * The constant currentUser.
      */
     static User currentUser;
-    static RestAPI restapi;
     private static boolean TESTING = false;
     private static TelegramBot telegramBot;
     private static int telegramChatId = 0;
-    /**
-     * The constant webClient.
-     */
-    WebClient webClient;
+
 
     /**
      * The entry point of application.
@@ -86,13 +83,13 @@ public class main {
             }
 
         }
-        //Try to read Modulelist
+        //Try to read Module list
         if (modullist.loadProperties()) {
-            Sout("Modullist: Successfully loadet Modullist stored in \"" + modullist.getFile().getName() + "\"");
+            Sout("Modullist: Successfully loaded Modullist stored in \"" + modullist.getFile().getName() + "\"");
         } else
             Sout("Modullist: Failed loading Modullist stored in \"" + modullist.getFile().getName() + "\"");
 
-        //Load the Programsettings or create if missing
+        //Load the Program settings or create if missing
         if (programSettings.loadProperties() && !programSettings.getProperty("login_username").equals("") && !programSettings.getProperty("login_password").equals("") && !programSettings.getProperty("telegram.token").equals("")) {
             Sout("Settings: Info: Successfully loaded Settings stored in \"" + programSettings.getFile().getName() + "\"");
 
@@ -106,12 +103,25 @@ public class main {
                 Sout("FEHLER -> Die Standard-Telegram-ChatId konnte nicht gelesen werden. Konfiguriere diesen Bot neu mit dem Startparameter \"INIT\"");
                 System.exit(404);
             }
-
+            currentUser = new User();
             currentUser.setCredentials(new Credentials(programSettings.getProperty("login_username"), programSettings.getProperty("login_password")));
 
             StudIPBot studIPBot = new StudIPBot(currentUni, currentUser);
 
-            studIPBot.login();
+            try {
+                studIPBot.login();
+            } catch (APIException e) {
+                Sout("ERROR -> Error during Login\n" + e.getErrorMessage());
+                System.exit(e.getErrorCode());
+            }
+            ArrayList<Course> courses;
+            try {
+                courses = studIPBot.fetchModules();
+                currentUser.setKurse(courses);
+            } catch (APIException e) {
+                Sout("ERROR -> Error fetching courses\n" + e.getErrorMessage());
+                System.exit(e.getErrorCode());
+            }
 
         } else {
             //Reset the config file, if something is corrupt
@@ -130,7 +140,7 @@ public class main {
         }
         programSettings.setProperty("login_username", user);
 
-        //Passwort
+        //Password
         Sout("Gebe dein Passwort für " + user + " ein:");
         String pass;
         while ((pass = in.nextLine()).equals("")) {
@@ -138,13 +148,13 @@ public class main {
         }
         programSettings.setProperty("login_password", pass);
 
-        //Try to login
+        //Try to log in
         StudIPBot studIPBot = new StudIPBot(currentUni, currentUser);
-        studIPBot.login();
-
-        if (!studIPBot.isLoggedIn()) {
-            Sout("ERROR -> Error during Login");
-            System.exit(401);
+        try {
+            studIPBot.login();
+        } catch (APIException e) {
+            Sout("ERROR -> Error during Login\n" + e.getErrorMessage());
+            System.exit(e.getErrorCode());
         }
 
         //Telegram Token

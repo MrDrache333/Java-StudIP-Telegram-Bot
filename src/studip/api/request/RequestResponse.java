@@ -5,60 +5,53 @@ package studip.api.request;
  */
 public class RequestResponse {
 
-    private int resonseCode;
-    private String resonesMessage;
-
-    /**
-     * Instantiates a new Request response.
-     */
-    public RequestResponse() {
-
-    }
+    private int responseCode;
+    private String responseMessage;
 
     /**
      * Instantiates a new Request response.
      *
-     * @param resonseCode    the resonse code
-     * @param resonesMessage the resones message
+     * @param responseCode    the response code
+     * @param responseMessage the response message
      */
-    public RequestResponse(int resonseCode, String resonesMessage) {
-        this.resonesMessage = resonesMessage;
-        this.resonseCode = resonseCode;
+    public RequestResponse(int responseCode, String responseMessage) {
+        this.responseMessage = responseMessage;
+        this.responseCode = responseCode;
     }
 
     /**
-     * Gets resonse code.
+     * Gets response code.
      *
-     * @return the resonse code
+     * @return the response code
      */
-    public int getResonseCode() {
-        return resonseCode;
+    public int getResponseCode() {
+        return responseCode;
     }
 
     /**
-     * Sets resonse code.
+     * Sets response code.
      *
-     * @param resonseCode the resonse code
+     * @param responseCode the response code
      */
-    public void setResonseCode(int resonseCode) {
-        this.resonseCode = resonseCode;
+    public void setResponseCode(int responseCode) {
+        this.responseCode = responseCode;
     }
 
     /**
-     * Gets resones message.
+     * Gets response message.
      *
-     * @return the resones message
+     * @return the response message
      */
-    public String getResonesMessage() {
-        return resonesMessage;
+    public String getResponseMessage() {
+        return responseMessage;
     }
 
     /**
-     * Sets resones message.
+     * Sets response message.
      *
-     * @param resonesMessage the resones message
+     * @param responseMessage the response message
      */
-    public void setResonesMessage(String resonesMessage) {
-        this.resonesMessage = resonesMessage;
+    public void setResponseMessage(String responseMessage) {
+        this.responseMessage = responseMessage;
     }
 }

@@ -31,28 +31,31 @@ public class AuthenticatedAPIRequest implements APIRequest {
 
 
     @Override
-    public RequestResponse getResponse() throws IOException {
+    public RequestResponse getResponse() throws APIException {
+        try {
+            HttpsURLConnection con = (HttpsURLConnection) endPoint.openConnection();
+            con.setRequestMethod("GET");
 
-        HttpsURLConnection con = (HttpsURLConnection) endPoint.openConnection();
-        con.setRequestMethod("GET");
+            //Auth
+            String auth = credentials.getUsername() + ":" + credentials.getPassword();
+            byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.UTF_8));
+            String authHeaderValue = "Basic " + new String(encodedAuth);
+            con.setRequestProperty("Authorization", authHeaderValue);
 
-        //Auth
-        String auth = credentials.getUsername() + ":" + credentials.getPassword();
-        byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.UTF_8));
-        String authHeaderValue = "Basic " + new String(encodedAuth);
-        con.setRequestProperty("Authorization", authHeaderValue);
+            int status = con.getResponseCode();
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer content = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+            con.disconnect();
 
-        int status = con.getResponseCode();
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer content = new StringBuffer();
-        while ((inputLine = in.readLine()) != null) {
-            content.append(inputLine);
+            return new RequestResponse(status, content.toString());
+        } catch (IOException e) {
+            throw new APIException(1, e.getMessage());
         }
-        in.close();
-        con.disconnect();
-
-        return new RequestResponse(status, content.toString());
     }
 
     /**

@@ -1,11 +1,12 @@
 package studip.api;
 
-import studip.api.request.AuthenticatedAPIRequest;
-import studip.api.request.RequestResponse;
+import org.json.JSONObject;
+import studip.api.request.*;
 import studip.api.types.Credentials;
 import studip.api.types.StudIPFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -40,8 +41,59 @@ public class RestAPI {
      *
      * @return the boolean
      */
-    public RequestResponse login() throws IOException {
-        return new AuthenticatedAPIRequest(new URL(endpoint.toString() + "user"), credentials).getResponse();
+    public RequestResponse login() throws IOException, APIException {
+        RequestResponse response = new AuthenticatedAPIRequest(new URL(endpoint.toString() + "user"), credentials).getResponse();
+        if (response.getResponseCode() != 200)
+            throw new LoginException(response.getResponseCode(), response.getResponseMessage());
+        return response;
+    }
+
+    public RequestResponse fetchUserModules(String user_id) throws IOException, APIException {
+        RequestResponse response = new AuthenticatedAPIRequest(new URL(endpoint.toString() + "user/" + user_id + "/courses"), credentials).getResponse();
+        if (response.getResponseCode() != 200) {
+            throw new RequestException(response.getResponseCode(), response.getResponseMessage());
+        } else {
+            return handlePagination(response);
+        }
+    }
+
+    public RequestResponse fetchSemesters() throws IOException, APIException {
+        RequestResponse response = new AuthenticatedAPIRequest(new URL(endpoint.toString() + "semesters"), credentials).getResponse();
+        if (response.getResponseCode() != 200) {
+            throw new RequestException(response.getResponseCode(), response.getResponseMessage());
+        } else {
+            return handlePagination(response);
+        }
+    }
+
+    public RequestResponse fetchCourseNews(String course_id) throws IOException, APIException {
+        RequestResponse response = new AuthenticatedAPIRequest(new URL(endpoint.toString() + "course/" + course_id + "/news"), credentials).getResponse();
+        if (response.getResponseCode() != 200) {
+            throw new RequestException(response.getResponseCode(), response.getResponseMessage());
+        } else {
+            return handlePagination(response);
+        }
+    }
+
+    private RequestResponse handlePagination(RequestResponse response) throws MalformedURLException, APIException {
+        JSONObject currentJson = new JSONObject(response.getResponseMessage());
+        int total = currentJson.getJSONObject("pagination").getInt("total");
+        int siteLimit = currentJson.getJSONObject("pagination").getInt("limit");
+        JSONObject collection = currentJson.getJSONObject("collection");
+        for (int i = 1; total > siteLimit * i; i++) {
+
+            RequestResponse nextResponse = new AuthenticatedAPIRequest(new URL(endpoint.getProtocol() + "://" + endpoint.getHost() + currentJson.getJSONObject("pagination").getJSONObject("links").getString("next")), credentials).getResponse();
+            if (response.getResponseCode() != 200) {
+                throw new RequestException(response.getResponseCode(), response.getResponseMessage());
+            }
+            JSONObject nextJson = new JSONObject(nextResponse.getResponseMessage());
+            JSONObject nextCollection = nextJson.getJSONObject("collection");
+            nextCollection.keySet().forEach(k -> collection.put(k, nextCollection.get(k)));
+            currentJson = nextJson;
+        }
+
+        currentJson.put("collection", collection);
+        return new RequestResponse(200, currentJson.toString());
     }
 
     /**

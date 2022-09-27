@@ -20,7 +20,9 @@ public class User {
     private String Name;        //Name des Benutzers
     private String userName;
     private Credentials credentials;
-    private ArrayList<Kurs> Kurse;
+    private ArrayList<Course> Kurse;
+
+    private String userId;
 
 
     /**
@@ -28,6 +30,14 @@ public class User {
      */
     public User() {
         this.Kurse = new ArrayList<>();
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public Credentials getCredentials() {
@@ -79,7 +89,7 @@ public class User {
      *
      * @return the kurse
      */
-    public ArrayList<Kurs> getKurse() {
+    public ArrayList<Course> getKurse() {
         return Kurse;
     }
 
@@ -88,7 +98,7 @@ public class User {
      *
      * @param kurse the kurse
      */
-    public void setKurse(ArrayList<Kurs> kurse) {
+    public void setKurse(ArrayList<Course> kurse) {
         Kurse = kurse;
     }
 }

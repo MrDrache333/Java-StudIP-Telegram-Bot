@@ -1,6 +1,7 @@
 package studip.api.types;
 
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * The type Uni.
@@ -9,6 +10,8 @@ public class Uni {
 
     private URL api;
     private String Name;
+
+    private ArrayList<Semester> semesters;
 
     /**
      * Instantiates a new Uni.
@@ -19,6 +22,14 @@ public class Uni {
     public Uni(String name, URL api) {
         this.Name = name;
         this.api = api;
+    }
+
+    public ArrayList<Semester> getSemesters() {
+        return semesters;
+    }
+
+    public void setSemesters(ArrayList<Semester> semesters) {
+        this.semesters = semesters;
     }
 
     /**
