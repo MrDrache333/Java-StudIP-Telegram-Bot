@@ -1,9 +1,9 @@
-package de.oelrichsgarcia.studipTelegramBot.studip.api.request;
+package de.oelrichsgarcia.studipTelegramBot.telegram.api;
 
 /**
  * The type Api exception.
  */
-abstract class APIException extends Exception {
+abstract class AbstractAPIException extends Exception {
 
     private int errorCode;
     private String errorMessage;
@@ -14,7 +14,7 @@ abstract class APIException extends Exception {
      * @param errorCode    the error code
      * @param errorMessage the error message
      */
-    public APIException(int errorCode, String errorMessage) {
+    public AbstractAPIException(int errorCode, String errorMessage) {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
     }

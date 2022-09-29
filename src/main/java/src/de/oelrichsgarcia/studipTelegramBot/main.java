@@ -4,16 +4,16 @@ import de.oelrichsgarcia.studipTelegramBot.studip.LoginException;
 import de.oelrichsgarcia.studipTelegramBot.studip.NotLoggedInException;
 import de.oelrichsgarcia.studipTelegramBot.studip.StudIPBot;
 import de.oelrichsgarcia.studipTelegramBot.studip.api.request.RequestException;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.Course;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.Credentials;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.Uni;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.User;
+import de.oelrichsgarcia.studipTelegramBot.studip.api.types.*;
+import de.oelrichsgarcia.studipTelegramBot.telegram.TelegramBot;
+import de.oelrichsgarcia.studipTelegramBot.telegram.api.TelegramApi;
 import de.oelrichsgarcia.studipTelegramBot.utils.Settings;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
 
 import static de.oelrichsgarcia.studipTelegramBot.utils.Debugger.Sout;
@@ -63,7 +63,7 @@ public class main {
                 System.out.println("TESTMODUS");
                 TESTING = true;
             } else if (args[0].equals("INIT")) {
-                init();
+                initializeTelegram();
             } else if (args[0].equals("configure") && args.length == 2) {
                 if ("telegramDefaultChatId".equals(args[1])) {
                     Sout("--- Configuration of the default Telegram-Chat-ID ---");
@@ -109,6 +109,16 @@ public class main {
                 Sout("FEHLER -> Die Standard-Telegram-ChatId konnte nicht gelesen werden. Konfiguriere diesen Bot neu mit dem Startparameter \"INIT\"");
                 System.exit(404);
             }
+
+            //Parse latest fetch
+            Date lastFetch = new Date(0);
+            try {
+                lastFetch = new Date(Long.parseLong(programSettings.getProperty("last-fetch")));
+            } catch (Exception e) {
+                Sout("INFO -> Cloud not found or parse last fetch. Initial run: Fetching everything now...");
+
+            }
+
             currentUser = new User();
             currentUser.setCredentials(new Credentials(programSettings.getProperty("login_username"), programSettings.getProperty("login_password")));
 
@@ -128,23 +138,43 @@ public class main {
                 System.exit(e.getErrorCode());
             }
 
+            //Check News and send new
             ArrayList<Course> currentCourses = studIPBot.getCurrentModules();
             for (Course course : currentCourses) {
                 studIPBot.fetchNewsForCourse(course);
                 if (course.getNews() != null && !course.getNews().isEmpty()) {
+                    ArrayList<News> news = course.getNews();
+                    Date finalLastFetch = lastFetch;
+                    news.forEach(n -> {
+                        if (n.getDate().getTime() > finalLastFetch.getTime()) {
+                            try {
+                                telegramBot.sendMessage(telegramChatId, "\uD83D\uDCF0_" + course.getName() + "_\uD83D\uDCF0\n*" + n.getTopic() + "*\n" + n.getText(), TelegramApi.parseMode.MARKDOWN);
+                            } catch (de.oelrichsgarcia.studipTelegramBot.telegram.api.RequestException e) {
 
+                                try {
+                                    telegramBot.sendMessage(telegramChatId, "\uD83D\uDCF0_" + course.getName() + "_\uD83D\uDCF0\n*" + n.getTopic() + "*\n" + "_Die Nachricht kann nicht in einer Telegramnachricht angezeigt werden._\n[Öffne StudIP](" + currentUni.getApi().getProtocol() + "://" + currentUni.getApi().getHost() + "/dispatch.php/course/overview?cid=" + course.getID(), TelegramApi.parseMode.MARKDOWN);
+                                } catch (de.oelrichsgarcia.studipTelegramBot.telegram.api.RequestException ex) {
+                                    Sout("ERROR -> Course: " + course.getID() + " News: " + n.getId() + " Errorcode: " + ex.getErrorCode() + " Message: " + ex.getErrorMessage());
+                                }
+                            }
+                        }
+                    });
                 }
             }
+
+            //TODO Nach fertigstellung aktuelles Datum speichern
+            programSettings.setProperty("last-fetch", String.valueOf(new Date().getTime()));
+            programSettings.saveProperties();
 
         } else {
             //Reset the config file, if something is corrupt
             programSettings.resetProperties();
-            init();
+            initializeTelegram();
         }
     }
 
     //Configure the Telegram Bot
-    private static void init() throws IOException, RequestException {
+    private static void initializeTelegram() throws IOException {
         Scanner in = new Scanner(System.in);
         Sout("Gebe deinen Benutzernamen der Uni ein:");
         String user;

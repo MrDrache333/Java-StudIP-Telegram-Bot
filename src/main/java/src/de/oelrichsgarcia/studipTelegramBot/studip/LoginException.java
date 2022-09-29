@@ -3,7 +3,7 @@ package de.oelrichsgarcia.studipTelegramBot.studip;
 /**
  * The type Login exception.
  */
-public class LoginException extends GeneralBotException {
+public class LoginException extends AbstractBotException {
 
     /**
      * Instantiates a new Login exception.

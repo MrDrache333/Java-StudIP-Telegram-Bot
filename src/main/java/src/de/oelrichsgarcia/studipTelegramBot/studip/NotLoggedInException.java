@@ -1,6 +1,6 @@
 package de.oelrichsgarcia.studipTelegramBot.studip;
 
-public class NotLoggedInException extends GeneralBotException {
+public class NotLoggedInException extends AbstractBotException {
 
 
     public NotLoggedInException() {

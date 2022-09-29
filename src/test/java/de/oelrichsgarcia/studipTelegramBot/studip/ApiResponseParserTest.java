@@ -2,6 +2,8 @@ package de.oelrichsgarcia.studipTelegramBot.studip;
 
 import de.oelrichsgarcia.studipTelegramBot.studip.api.request.RequestResponse;
 import de.oelrichsgarcia.studipTelegramBot.studip.api.types.Course;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -19,20 +21,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class ApiResponseParserTest {
 
-    private RequestResponse emptyResponse;
+    private static RequestResponse emptyResponse;
     //Course
-    private RequestResponse courseResponse;
+    private static RequestResponse courseResponse;
     //Semester
-    private RequestResponse semesterResponse;
+    private static RequestResponse semesterResponse;
     //News
-    private RequestResponse newsResponse;
+    private static RequestResponse newsResponse;
 
     @BeforeAll
-    public void before() throws Exception {
-        emptyResponse = new RequestResponse(200, "");
-        courseResponse = new RequestResponse(200, "");
-        semesterResponse = new RequestResponse(200, "");
-        newsResponse = new RequestResponse(200, "");
+    public static void before() throws Exception {
+        emptyResponse = new RequestResponse(200, new JSONObject().put("pagination", new JSONObject()).put("collection", new JSONArray()).toString());
+        courseResponse = new RequestResponse(200, emptyResponse.getResponseMessage());
+        semesterResponse = new RequestResponse(200, emptyResponse.getResponseMessage());
+        newsResponse = new RequestResponse(200, emptyResponse.getResponseMessage());
     }
 
     /**
