@@ -1,4 +1,4 @@
-package de.oelrichsgarcia.studipTelegramBot.studip;
+package studip;
 
 /**
  * The interface Bot exception.

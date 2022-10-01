@@ -1,4 +1,4 @@
-package de.oelrichsgarcia.studipTelegramBot.studip.api.types;
+package studip.api.types;
 
 import java.util.Date;
 

@@ -1,0 +1,7 @@
+/config.xml
+*.stud
+*.DS-Store
+/out
+/StudIP
+/.idea/
+/lib/

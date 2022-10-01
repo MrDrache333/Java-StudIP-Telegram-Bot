@@ -1,13 +1,13 @@
 package de.oelrichsgarcia.studipTelegramBot;
 
-import de.oelrichsgarcia.studipTelegramBot.studip.LoginException;
-import de.oelrichsgarcia.studipTelegramBot.studip.NotLoggedInException;
-import de.oelrichsgarcia.studipTelegramBot.studip.StudIPBot;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.request.RequestException;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.*;
 import de.oelrichsgarcia.studipTelegramBot.telegram.TelegramBot;
 import de.oelrichsgarcia.studipTelegramBot.telegram.api.TelegramApi;
 import de.oelrichsgarcia.studipTelegramBot.utils.Settings;
+import studip.LoginException;
+import studip.NotLoggedInException;
+import studip.StudIPBot;
+import studip.api.request.RequestException;
+import studip.api.types.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,8 +27,10 @@ public class main {
     /**
      * The constant programSettings.
      */
+    //TODO Config als YAML speichern
     private static final Settings programSettings = new Settings(new File("config.xml"));
     private static final Settings modullist = new Settings(new File("modullist.stud"));
+    //TODO Pfad in Config speichern
     private static final File DownloadPath = new File("StudIP/Files/");
     /**
      * The constant currentUni.
@@ -38,7 +40,6 @@ public class main {
      * The constant currentUser.
      */
     static User currentUser;
-    private static boolean TESTING = false;
     private static TelegramBot telegramBot;
     private static int telegramChatId = 0;
 
@@ -50,45 +51,17 @@ public class main {
      * @throws IOException the io exception
      */
     public static void main(String[] args) throws IOException, NotLoggedInException, RequestException {
-        //Uni erstellen mit nötigen Links
+        //Create new Uni
+        //TODO Uni aus Config laden
+        //TODO Uni namen von Api abrufen?
         currentUni = new Uni(
                 "Carl von Ossietzky Universität Oldenburg",
                 new URL("https://elearning.uni-oldenburg.de/api.php/")
         );
 
-        if (args.length > 0) {
-            //Wenn das Programm getestet wird den Testmodus einschalten
-            if (args[0].equals("TEST")) {
+        //Handle Input Parameters
+        handleArgs(args);
 
-                System.out.println("TESTMODUS");
-                TESTING = true;
-            } else if (args[0].equals("INIT")) {
-                initializeTelegram();
-            } else if (args[0].equals("configure") && args.length == 2) {
-                if ("telegramDefaultChatId".equals(args[1])) {
-                    Sout("--- Configuration of the default Telegram-Chat-ID ---");
-                    //Create a new Telegram_bot
-                    if (!programSettings.loadProperties()) {
-                        Sout("Reconfigure Bot using \"INIT\" Parameter");
-                        System.exit(0);
-                    }
-                    final String token = programSettings.getProperty("telegram.token");
-                    if (token.equals("")) {
-                        Sout("Failed to load Telegram Token");
-                        Sout("Reconfigure Bot using \"INIT\" Parameter");
-                        System.exit(0);
-
-                    }
-                    telegramBot = new TelegramBot(token);
-                    programSettings.setProperty("telegram.defaultChatId", "" + telegramBot.configureDefaultTelegramChatId());
-                    programSettings.saveProperties();
-
-                    Sout("Your default Telegram Chat-ID is now set to: " + programSettings.getProperty("telegram.defaultChatId"));
-                    System.exit(0);
-                }
-            }
-
-        }
         //Try to read Module list
         if (modullist.loadProperties()) {
             Sout("Modullist: Successfully loaded Modullist stored in \"" + modullist.getFile().getName() + "\"");
@@ -142,18 +115,22 @@ public class main {
             ArrayList<Course> currentCourses = studIPBot.getCurrentModules();
             for (Course course : currentCourses) {
                 studIPBot.fetchNewsForCourse(course);
+                //Check whether new news are available or not
                 if (course.getNews() != null && !course.getNews().isEmpty()) {
                     ArrayList<News> news = course.getNews();
                     Date finalLastFetch = lastFetch;
                     news.forEach(n -> {
+
+                        //Is News newer than last fetch?
                         if (n.getDate().getTime() > finalLastFetch.getTime()) {
                             try {
                                 telegramBot.sendMessage(telegramChatId, "\uD83D\uDCF0_" + course.getName() + "_\uD83D\uDCF0\n*" + n.getTopic() + "*\n" + n.getText(), TelegramApi.parseMode.MARKDOWN);
                             } catch (de.oelrichsgarcia.studipTelegramBot.telegram.api.RequestException e) {
-
+                                //If sending Message failed, try to send short Message with link to Original news
                                 try {
                                     telegramBot.sendMessage(telegramChatId, "\uD83D\uDCF0_" + course.getName() + "_\uD83D\uDCF0\n*" + n.getTopic() + "*\n" + "_Die Nachricht kann nicht in einer Telegramnachricht angezeigt werden._\n[Öffne StudIP](" + currentUni.getApi().getProtocol() + "://" + currentUni.getApi().getHost() + "/dispatch.php/course/overview?cid=" + course.getID(), TelegramApi.parseMode.MARKDOWN);
                                 } catch (de.oelrichsgarcia.studipTelegramBot.telegram.api.RequestException ex) {
+                                    //When both failed, log error
                                     Sout("ERROR -> Course: " + course.getID() + " News: " + n.getId() + " Errorcode: " + ex.getErrorCode() + " Message: " + ex.getErrorMessage());
                                 }
                             }
@@ -170,6 +147,41 @@ public class main {
             //Reset the config file, if something is corrupt
             programSettings.resetProperties();
             initializeTelegram();
+        }
+    }
+
+    private static void handleArgs(String[] args) throws IOException {
+        if (args.length > 0) {
+            //Wenn das Programm getestet wird den Testmodus einschalten
+            if (args[0].equals("TEST")) {
+
+                System.out.println("TESTMODUS");
+            } else if (args[0].equals("INIT")) {
+                initializeTelegram();
+            } else if (args[0].equals("configure") && args.length == 2) {
+                if ("telegramDefaultChatId".equals(args[1])) {
+                    Sout("--- Configuration of the default Telegram-Chat-ID ---");
+                    //Create a new Telegram_bot
+                    if (!programSettings.loadProperties()) {
+                        Sout("Reconfigure Bot using \"INIT\" Parameter");
+                        System.exit(0);
+                    }
+                    final String token = programSettings.getProperty("telegram.token");
+                    if (token.equals("")) {
+                        Sout("Failed to load Telegram Token");
+                        Sout("Reconfigure Bot using \"INIT\" Parameter");
+                        System.exit(0);
+
+                    }
+                    telegramBot = new TelegramBot(token);
+                    programSettings.setProperty("telegram.defaultChatId", "" + telegramBot.configureDefaultTelegramChatId());
+                    programSettings.saveProperties();
+
+                    Sout("Your default Telegram Chat-ID is now set to: " + programSettings.getProperty("telegram.defaultChatId"));
+                    System.exit(0);
+                }
+            }
+
         }
     }
 

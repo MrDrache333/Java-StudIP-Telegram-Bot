@@ -1,11 +1,12 @@
 package de.oelrichsgarcia.studipTelegramBot.studip;
 
-import de.oelrichsgarcia.studipTelegramBot.studip.api.request.RequestResponse;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.Course;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import studip.ApiResponseParser;
+import studip.api.request.RequestResponse;
+import studip.api.types.Course;
 
 import java.util.ArrayList;
 

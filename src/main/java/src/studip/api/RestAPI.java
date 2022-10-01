@@ -1,13 +1,13 @@
-package de.oelrichsgarcia.studipTelegramBot.studip.api;
+package studip.api;
 
-import de.oelrichsgarcia.studipTelegramBot.studip.LoginException;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.request.AuthenticatedAPIRequest;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.request.RequestException;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.request.RequestResponse;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.Credentials;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.StudIPFile;
 import org.json.JSONException;
 import org.json.JSONObject;
+import studip.LoginException;
+import studip.api.request.AuthenticatedAPIRequest;
+import studip.api.request.RequestException;
+import studip.api.request.RequestResponse;
+import studip.api.types.Credentials;
+import studip.api.types.StudIPFile;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

@@ -1,11 +1,11 @@
-package de.oelrichsgarcia.studipTelegramBot.studip;
+package studip;
 
-import de.oelrichsgarcia.studipTelegramBot.studip.api.request.RequestResponse;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.Course;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.News;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.Semester;
 import org.json.JSONException;
 import org.json.JSONObject;
+import studip.api.request.RequestResponse;
+import studip.api.types.Course;
+import studip.api.types.News;
+import studip.api.types.Semester;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,7 +21,7 @@ public class ApiResponseParser {
      * @param response the response
      * @return the array list
      */
-    static ArrayList<Course> parseCourse(RequestResponse response) {
+    public static ArrayList<Course> parseCourse(RequestResponse response) {
         if (response == null || response.getResponseMessage() == null) return new ArrayList<>();
         JSONObject json = new JSONObject(response.getResponseMessage());
 

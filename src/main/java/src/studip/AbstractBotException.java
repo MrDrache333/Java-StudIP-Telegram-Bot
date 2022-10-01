@@ -1,4 +1,4 @@
-package de.oelrichsgarcia.studipTelegramBot.studip;
+package studip;
 
 abstract class AbstractBotException extends Exception implements BotException {
 

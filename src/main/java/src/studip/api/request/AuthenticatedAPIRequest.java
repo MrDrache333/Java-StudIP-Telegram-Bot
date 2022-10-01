@@ -1,7 +1,7 @@
-package de.oelrichsgarcia.studipTelegramBot.studip.api.request;
+package studip.api.request;
 
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.Credentials;
 import org.apache.commons.codec.binary.Base64;
+import studip.api.types.Credentials;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;

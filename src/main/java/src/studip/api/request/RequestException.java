@@ -1,4 +1,4 @@
-package de.oelrichsgarcia.studipTelegramBot.studip.api.request;
+package studip.api.request;
 
 /**
  * The type Request exception.

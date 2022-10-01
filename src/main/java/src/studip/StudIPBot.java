@@ -1,13 +1,13 @@
-package de.oelrichsgarcia.studipTelegramBot.studip;
+package studip;
 
-import de.oelrichsgarcia.studipTelegramBot.studip.api.RestAPI;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.request.RequestException;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.request.RequestResponse;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.Course;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.Semester;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.Uni;
-import de.oelrichsgarcia.studipTelegramBot.studip.api.types.User;
 import org.json.JSONObject;
+import studip.api.RestAPI;
+import studip.api.request.RequestException;
+import studip.api.request.RequestResponse;
+import studip.api.types.Course;
+import studip.api.types.Semester;
+import studip.api.types.Uni;
+import studip.api.types.User;
 
 import java.io.IOException;
 import java.util.ArrayList;
