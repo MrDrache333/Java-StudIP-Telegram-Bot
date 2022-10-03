@@ -1,4 +1,4 @@
-package de.oelrichsgarcia.studipTelegramBot.telegram.api;
+package src.de.oelrichsgarcia.studipTelegramBot.telegram.api;
 
 import org.json.JSONObject;
 

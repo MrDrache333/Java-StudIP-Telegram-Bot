@@ -1,4 +1,4 @@
-package de.oelrichsgarcia.studipTelegramBot.telegram.api;
+package src.de.oelrichsgarcia.studipTelegramBot.telegram.api;
 
 /**
  * The type Request response.

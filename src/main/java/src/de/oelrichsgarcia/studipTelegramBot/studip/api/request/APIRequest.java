@@ -1,4 +1,4 @@
-package studip.api.request;
+package src.de.oelrichsgarcia.studipTelegramBot.studip.api.request;
 
 import java.io.IOException;
 

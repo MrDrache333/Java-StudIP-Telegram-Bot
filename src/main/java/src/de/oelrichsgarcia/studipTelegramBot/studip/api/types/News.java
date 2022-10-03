@@ -1,4 +1,4 @@
-package studip.api.types;
+package src.de.oelrichsgarcia.studipTelegramBot.studip.api.types;
 
 import org.jsoup.Jsoup;
 

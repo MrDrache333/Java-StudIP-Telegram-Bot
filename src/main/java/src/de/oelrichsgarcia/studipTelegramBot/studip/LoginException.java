@@ -1,4 +1,4 @@
-package studip;
+package src.de.oelrichsgarcia.studipTelegramBot.studip;
 
 /**
  * The type Login exception.

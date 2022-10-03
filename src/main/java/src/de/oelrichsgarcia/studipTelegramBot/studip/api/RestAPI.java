@@ -1,13 +1,13 @@
-package studip.api;
+package src.de.oelrichsgarcia.studipTelegramBot.studip.api;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import studip.LoginException;
-import studip.api.request.AuthenticatedAPIRequest;
-import studip.api.request.RequestException;
-import studip.api.request.RequestResponse;
-import studip.api.types.Credentials;
-import studip.api.types.StudIPFile;
+import src.de.oelrichsgarcia.studipTelegramBot.studip.LoginException;
+import src.de.oelrichsgarcia.studipTelegramBot.studip.api.request.AuthenticatedAPIRequest;
+import src.de.oelrichsgarcia.studipTelegramBot.studip.api.request.RequestException;
+import src.de.oelrichsgarcia.studipTelegramBot.studip.api.request.RequestResponse;
+import src.de.oelrichsgarcia.studipTelegramBot.studip.api.types.Credentials;
+import src.de.oelrichsgarcia.studipTelegramBot.studip.api.types.StudIPFile;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -21,13 +21,6 @@ public class RestAPI {
 
     private Credentials credentials;
     private URL endpoint;
-
-    /**
-     * Instantiates a new Rest.
-     */
-    public RestAPI() {
-
-    }
 
     /**
      * Instantiates a new Rest.

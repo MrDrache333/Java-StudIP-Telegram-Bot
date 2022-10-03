@@ -1,13 +1,13 @@
-package de.oelrichsgarcia.studipTelegramBot;
+package src.de.oelrichsgarcia.studipTelegramBot;
 
-import de.oelrichsgarcia.studipTelegramBot.telegram.TelegramBot;
-import de.oelrichsgarcia.studipTelegramBot.telegram.api.TelegramApi;
 import de.oelrichsgarcia.studipTelegramBot.utils.Settings;
-import studip.LoginException;
-import studip.NotLoggedInException;
-import studip.StudIPBot;
-import studip.api.request.RequestException;
-import studip.api.types.*;
+import src.de.oelrichsgarcia.studipTelegramBot.studip.LoginException;
+import src.de.oelrichsgarcia.studipTelegramBot.studip.NotLoggedInException;
+import src.de.oelrichsgarcia.studipTelegramBot.studip.StudIPBot;
+import src.de.oelrichsgarcia.studipTelegramBot.studip.api.request.RequestException;
+import src.de.oelrichsgarcia.studipTelegramBot.studip.api.types.*;
+import src.de.oelrichsgarcia.studipTelegramBot.telegram.TelegramBot;
+import src.de.oelrichsgarcia.studipTelegramBot.telegram.api.TelegramApi;
 
 import java.io.File;
 import java.io.IOException;
@@ -125,11 +125,11 @@ public class main {
                         if (n.getDate().getTime() > finalLastFetch.getTime()) {
                             try {
                                 telegramBot.sendMessage(telegramChatId, "\uD83D\uDCF0_" + course.getName() + "_\uD83D\uDCF0\n*" + n.getTopic() + "*\n" + n.getText(), TelegramApi.parseMode.MARKDOWN);
-                            } catch (de.oelrichsgarcia.studipTelegramBot.telegram.api.RequestException e) {
+                            } catch (src.de.oelrichsgarcia.studipTelegramBot.telegram.api.RequestException e) {
                                 //If sending Message failed, try to send short Message with link to Original news
                                 try {
                                     telegramBot.sendMessage(telegramChatId, "\uD83D\uDCF0_" + course.getName() + "_\uD83D\uDCF0\n*" + n.getTopic() + "*\n" + "_Die Nachricht kann nicht in einer Telegramnachricht angezeigt werden._\n[Öffne StudIP](" + currentUni.getApi().getProtocol() + "://" + currentUni.getApi().getHost() + "/dispatch.php/course/overview?cid=" + course.getID(), TelegramApi.parseMode.MARKDOWN);
-                                } catch (de.oelrichsgarcia.studipTelegramBot.telegram.api.RequestException ex) {
+                                } catch (src.de.oelrichsgarcia.studipTelegramBot.telegram.api.RequestException ex) {
                                     //When both failed, log error
                                     Sout("ERROR -> Course: " + course.getID() + " News: " + n.getId() + " Errorcode: " + ex.getErrorCode() + " Message: " + ex.getErrorMessage());
                                 }

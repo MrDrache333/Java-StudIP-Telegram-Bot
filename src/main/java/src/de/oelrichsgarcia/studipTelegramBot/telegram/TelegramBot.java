@@ -1,9 +1,9 @@
-package de.oelrichsgarcia.studipTelegramBot.telegram;
+package src.de.oelrichsgarcia.studipTelegramBot.telegram;
 
-import de.oelrichsgarcia.studipTelegramBot.telegram.api.RequestException;
-import de.oelrichsgarcia.studipTelegramBot.telegram.api.TelegramApi;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import src.de.oelrichsgarcia.studipTelegramBot.telegram.api.RequestException;
+import src.de.oelrichsgarcia.studipTelegramBot.telegram.api.TelegramApi;
 
 import java.util.Random;
 
