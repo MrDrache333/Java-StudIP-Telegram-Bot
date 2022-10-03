@@ -13,6 +13,6 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: docker/build-push-action@v3
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag mrdrache333/java-studip-telegram-bot:$(date +%s)
