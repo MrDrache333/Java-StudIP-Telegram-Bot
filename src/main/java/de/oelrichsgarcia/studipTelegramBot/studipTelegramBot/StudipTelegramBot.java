@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 
 import static de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.utils.Debugger.Sout;
@@ -59,8 +60,6 @@ public class StudipTelegramBot {
         Optional<TelegramConfig> telegramConfig = Optional.ofNullable(config.getTelegramConfig());
         if (!telegramConfig.isPresent()) {
             System.out.println("No telegramConfig Present! Please add it to your config.");
-        } else {
-            //TODO
         }
 
         if (config.getApi_endpoint() == null || config.getApi_username() == null || config.getApi_password() == null || !telegramConfig.isPresent()) {
@@ -74,12 +73,46 @@ public class StudipTelegramBot {
 
     }
 
+    private TelegramBot getTelegramBotForCourse(Course course) {
+        String telegramToken = config.getTelegramConfig().getToken();
+        Optional<CourseConfig> courseConfig = Optional.ofNullable(config.getCourseConfigs().get(course.getId()));
+        if (courseConfig.isPresent()) {
+            Optional<TelegramConfig> telegramConfig = Optional.ofNullable(courseConfig.get().getTelegramConfig());
+            if (telegramConfig.isPresent()) {
+                if (telegramConfig.get().getToken() != null) {
+                    telegramToken = telegramConfig.get().getToken();
+                }
+            }
+        }
+        return new TelegramBot(telegramToken);
+    }
+
+    private int getTelegramChatForCourse(Course course) {
+        int telegramChatId = config.getTelegramConfig().getChatId();
+        Optional<CourseConfig> courseConfig = Optional.ofNullable(config.getCourseConfigs().get(course.getId()));
+        if (courseConfig.isPresent()) {
+            Optional<TelegramConfig> telegramConfig = Optional.ofNullable(courseConfig.get().getTelegramConfig());
+            if (telegramConfig.isPresent()) {
+                if (telegramConfig.get().getChatId() != 0) {
+                    telegramChatId = telegramConfig.get().getChatId();
+                }
+
+            }
+        }
+        return telegramChatId;
+    }
+
+    private Boolean isCourseBlacklisted(Course course) {
+        return config.getBlacklist().contains(course.getId());
+    }
+
     /**
      * Update.
      *
-     * @throws LoginException   the login exception
-     * @throws IOException      the io exception
-     * @throws RequestException the request exception
+     * @throws LoginException       the login exception
+     * @throws IOException          the io exception
+     * @throws RequestException     the request exception
+     * @throws NotLoggedInException the not logged in exception
      */
     public void update() throws LoginException, IOException, RequestException, NotLoggedInException {
 
@@ -87,63 +120,90 @@ public class StudipTelegramBot {
         studIPBot.login();
         studIPBot.fetchModules();
 
-        //Check News and send new
-        Sout("INFO -> Fetching News for current courses");
         ArrayList<Course> currentCourses = studIPBot.getCurrentModules();
+
+        //Check News and send new
         for (Course course : currentCourses) {
-            studIPBot.fetchNewsForCourse(course);
-            //Check whether new news are available or not
-            if (course.getNews() != null && !course.getNews().isEmpty()) {
-                ArrayList<News> news = course.getNews();
-                Date finalLastFetch = new Date(config.getStartTime());
-                news.forEach(n -> {
+            //Skip if course is on Blacklist
+            if (isCourseBlacklisted(course)) {
+                Sout("Skipping " + course.getName());
+                continue;
+            } else
+                Sout("Updating " + course.getName());
 
-                    //Try  to load specific configuaration for course
-                    int telegramChatId = config.getTelegramConfig().getChatId();
-                    String telegramToken = config.getTelegramConfig().getToken();
-                    Optional<CourseConfig> courseConfig = Optional.ofNullable(config.getCourseConfigs().get(course.getId()));
-                    if (courseConfig.isPresent()) {
-                        Optional<TelegramConfig> telegramConfig = Optional.ofNullable(courseConfig.get().getTelegramConfig());
-                        if (telegramConfig.isPresent()) {
-                            if (telegramConfig.get().getChatId() != 0) {
-                                telegramChatId = telegramConfig.get().getChatId();
-                            }
-                            if (telegramConfig.get().getToken() != null) {
-                                telegramToken = telegramConfig.get().getToken();
-                            }
-                        }
-                    }
+            //Apply Custom settings
+            Optional<CourseConfig> courseConfig = Optional.ofNullable(config.getCourseConfigs().get(course.getId()));
+            boolean downloadFiles = true;
+            boolean sendNews = true;
+            if (courseConfig.isPresent()) {
+                CourseConfig currentCourseConfig = courseConfig.get();
+                if (currentCourseConfig.getName() != null) {
+                    course.setName(currentCourseConfig.getName());
+                }
+                downloadFiles = currentCourseConfig.isDownloadFiles();
+                sendNews = currentCourseConfig.isSendNews();
+            } else {
+                //Create new config
+                createNewCourseConfig(course);
+            }
 
-                    TelegramBot telegramBot = new TelegramBot(telegramToken);
+            //Fetch and handle news of course
+            if (sendNews) {
+                studIPBot.fetchNewsForCourse(course);
+                handleNews(course);
+            }
 
-                    //Is News newer than last fetch?
-                    if (n.getDate().getTime() > finalLastFetch.getTime()) {
-                        try {
-                            telegramBot.sendMessage(telegramChatId, "\uD83D\uDCF0_" + course.getName() + "_\uD83D\uDCF0\n*" + n.getTopic() + "*\n" + n.getText(), TelegramApi.parseMode.MARKDOWN);
-                        } catch (
-                                de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.telegram.api.RequestException e) {
-                            //If sending Message failed, try to send short Message with link to Original news
-                            try {
-                                telegramBot.sendMessage(telegramChatId, "\uD83D\uDCF0_" + course.getName() + "_\uD83D\uDCF0\n*" + n.getTopic() + "*\n" + "_Die Nachricht kann nicht in einer Telegramnachricht angezeigt werden._\n[Öffne StudIP](" + uni.getApi().getProtocol() + "://" + uni.getApi().getHost() + "/dispatch.php/course/overview?cid=" + course.getId(), TelegramApi.parseMode.MARKDOWN);
-                            } catch (
-                                    de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.telegram.api.RequestException ex) {
-                                //When both failed, log error
-                                Sout("ERROR -> Course: " + course.getId() + " News: " + n.getId() + " Errorcode: " + ex.getErrorCode() + " Message: " + ex.getErrorMessage());
-                            }
-                        }
-                    }
-                });
+            //Fetch and handle files of course
+            if (downloadFiles) {
+                studIPBot.fetchFilesForCourse(course);
+                handleFiles(course);
             }
         }
 
-
-        //Check Files and download new
-        Sout("INFO -> Fetching Filestructure for current courses");
-        for (Course course : currentCourses) {
-            studIPBot.fetchFilesForCourse(course);
-        }
-
-
         config.setStartTime(new Date().getTime());
+    }
+
+    private void createNewCourseConfig(Course course) {
+        //Create new custom settings in config for each course
+        Map<String, CourseConfig> newCourseConfigs = config.getCourseConfigs();
+        CourseConfig newCourseConfig = new CourseConfig();
+        newCourseConfig.setName(course.getName());
+        newCourseConfigs.put(course.getId(), newCourseConfig);
+        config.setCourseConfigs(newCourseConfigs);
+    }
+
+    private void handleFiles(Course course) {
+
+    }
+
+    private void handleNews(Course course) {
+        //Check whether new news are available or not
+        if (course.getNews() != null && !course.getNews().isEmpty()) {
+            ArrayList<News> news = course.getNews();
+            Date finalLastFetch = new Date(config.getStartTime());
+
+            TelegramBot telegramBot = getTelegramBotForCourse(course);
+            int telegramChatId = getTelegramChatForCourse(course);
+
+            news.forEach(n -> {
+
+                //Is News newer than last fetch?
+                if (n.getDate().getTime() > finalLastFetch.getTime()) {
+                    try {
+                        telegramBot.sendMessage(telegramChatId, "\uD83D\uDCF0_" + course.getName() + "_\uD83D\uDCF0\n*" + n.getTopic() + "*\n" + n.getText(), TelegramApi.parseMode.MARKDOWN);
+                    } catch (
+                            de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.telegram.api.RequestException e) {
+                        //If sending Message failed, try to send short Message with link to Original news
+                        try {
+                            telegramBot.sendMessage(telegramChatId, "\uD83D\uDCF0_" + course.getName() + "_\uD83D\uDCF0\n*" + n.getTopic() + "*\n" + "_Die Nachricht kann nicht in einer Telegramnachricht angezeigt werden._\n[Öffne StudIP](" + uni.getApi().getProtocol() + "://" + uni.getApi().getHost() + "/dispatch.php/course/overview?cid=" + course.getId(), TelegramApi.parseMode.MARKDOWN);
+                        } catch (
+                                de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.telegram.api.RequestException ex) {
+                            //When both failed, log error
+                            Sout("ERROR -> Course: " + course.getId() + " News: " + n.getId() + " Errorcode: " + ex.getErrorCode() + " Message: " + ex.getErrorMessage());
+                        }
+                    }
+                }
+            });
+        }
     }
 }

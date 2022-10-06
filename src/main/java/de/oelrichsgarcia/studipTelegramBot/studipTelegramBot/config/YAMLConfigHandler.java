@@ -69,7 +69,7 @@ public class YAMLConfigHandler {
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         options.setPrettyFlow(true);
         Yaml yml = new Yaml(options);
-        yml.dump(config, new FileWriter(configPath.toFile()));
+        yml.dump(config, new FileWriter(path.toFile()));
     }
 
     /**

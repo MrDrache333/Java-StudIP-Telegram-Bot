@@ -15,6 +15,8 @@ import java.nio.charset.StandardCharsets;
  */
 public class AuthenticatedAPIRequest implements APIRequest {
 
+    public static int requests = 0;
+
     private Credentials credentials;
     private URL endPoint;
 
@@ -33,6 +35,7 @@ public class AuthenticatedAPIRequest implements APIRequest {
     @Override
     public RequestResponse getResponse() throws RequestException {
         try {
+            requests++;
             HttpsURLConnection con = (HttpsURLConnection) endPoint.openConnection();
             con.setRequestMethod("GET");
 

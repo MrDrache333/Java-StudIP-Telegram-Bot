@@ -17,7 +17,7 @@ public class Config {
     private Long startTime = 0L;
     private Map<String, CourseConfig> courseConfigs = new HashMap<>();
     private TelegramConfig telegramConfig = new TelegramConfig();
-    private List<String> blackListed = new ArrayList<>();
+    private List<String> blacklist = new ArrayList<>();
 
     /**
      * Instantiates a new Config.
@@ -156,16 +156,16 @@ public class Config {
      *
      * @return the black listed
      */
-    public List<String> getBlackListed() {
-        return blackListed;
+    public List<String> getBlacklist() {
+        return blacklist;
     }
 
     /**
      * Sets black listed.
      *
-     * @param blackListed the black listed
+     * @param blacklist the black listed
      */
-    public void setBlackListed(List<String> blackListed) {
-        this.blackListed = blackListed;
+    public void setBlacklist(List<String> blacklist) {
+        this.blacklist = blacklist;
     }
 }

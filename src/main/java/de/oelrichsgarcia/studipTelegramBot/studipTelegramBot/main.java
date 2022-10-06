@@ -4,6 +4,7 @@ import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.config.Config;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.config.YAMLConfigHandler;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.LoginException;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.NotLoggedInException;
+import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.request.AuthenticatedAPIRequest;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,8 +42,9 @@ public class main {
 
         studipTelegramBot.update();
 
-        Sout("INFO -> Finished! Time spend: " + new SimpleDateFormat("ss").format(new Date().getTime() - startTime.getTime()) + " Seconds");
-        configHandler.dumpConfig();
+        Sout("Finished! Time spend: " + new SimpleDateFormat("ss").format(new Date().getTime() - startTime.getTime()) + " Seconds");
+        Sout("Requests made: " + AuthenticatedAPIRequest.requests);
+        configHandler.dumpConfig(config, YAMLConfigHandler.configPath);
 
     }
 }

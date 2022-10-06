@@ -41,7 +41,7 @@ public class StudIPBot {
     }
 
     public void readStudipConfig() throws IOException, RequestException {
-        System.out.println("Trying to read StudIP-Config with API-EndPoint at " + uni.getApi().toString());
+        Sout("Trying to read StudIP-Config with API-EndPoint at " + restapi.getEndpoint().toString());
         RequestResponse response = restapi.fetchSettings();
         if (response.getResponseCode() == 200) {
             //Set Userinformations
@@ -59,7 +59,7 @@ public class StudIPBot {
      * @throws LoginException   the login exception
      */
     public void login() throws IOException, RequestException, LoginException {
-        System.out.println("INFO -> Trying to Login to " + uni.getName() + " with API-EndPoint at " + uni.getApi().toString());
+        System.out.println("Trying to Login to " + uni.getName() + " with API-EndPoint at " + restapi.getEndpoint().toString());
         RequestResponse response = restapi.login();
 
         //Store Userinformations when login was successfull
@@ -70,7 +70,7 @@ public class StudIPBot {
             user.setName(json.getJSONObject("name").getString("formatted"));
             user.setUserId(json.getString("user_id"));
             loggedIn = true;
-            Sout("INFO -> Logged in successfully as " + user.getName());
+            Sout("Logged in successfully as " + user.getName());
         }
     }
 
@@ -84,7 +84,7 @@ public class StudIPBot {
      * @throws RequestException     the api exception
      */
     public void fetchModules() throws IOException, NotLoggedInException, RequestException {
-        System.out.println("INFO -> Trying to Fetch Courses");
+        System.out.println("Fetching Courses");
         //Store Userinformations when login was successfull
         if (loggedIn) {
             RequestResponse response = restapi.fetchUserModules(user.getUserId());
@@ -110,14 +110,13 @@ public class StudIPBot {
             Semester currentSemester = null;
             for (Semester semester : uni.getSemesters()) {
                 Long date = new Date().getTime();
-                //TODO DELETE AFTER TESTs
-                date = 1656932718L * 1000;
                 if (semester.getBegin().getTime() < date && semester.getEnd().getTime() > date) {
                     currentSemester = semester;
                     break;
                 }
             }
             if (currentSemester != null) {
+                Sout("Current Semester: " + currentSemester.getTitle());
                 ArrayList<Course> courses = new ArrayList<>();
                 Semester finalCurrentSemester = currentSemester;
                 user.getKurse().forEach(c -> {

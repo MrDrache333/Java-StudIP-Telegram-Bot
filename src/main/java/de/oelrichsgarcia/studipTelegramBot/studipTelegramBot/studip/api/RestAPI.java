@@ -27,6 +27,12 @@ public class RestAPI {
      * @param credentials the credentials
      */
     public RestAPI(URL endPoint, Credentials credentials) {
+        if (!endPoint.getPath().endsWith("/")) {
+            try {
+                endPoint = new URL(endPoint.getProtocol() + "://" + endPoint.getHost() + endPoint.getPath() + "/");
+            } catch (MalformedURLException ignored) {
+            }
+        }
         this.endpoint = endPoint;
         this.credentials = credentials;
     }
