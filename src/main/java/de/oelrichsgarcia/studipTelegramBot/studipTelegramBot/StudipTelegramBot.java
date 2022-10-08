@@ -3,6 +3,7 @@ package de.oelrichsgarcia.studipTelegramBot.studipTelegramBot;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.config.Config;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.config.CourseConfig;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.config.TelegramConfig;
+import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.FileUpdateSummary;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.LoginException;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.NotLoggedInException;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.StudIPBot;
@@ -163,6 +164,41 @@ public class StudipTelegramBot {
                 studIPBot.fetchFileStructureForCourse(course);
                 createFoldersAndDownloadFiles(course, downloadpath);
             }
+
+            //Create Summary and send via Telegram
+            FileUpdateSummary summary = studIPBot.getUpdateSummary();
+            if (!summary.getNewFiles().isEmpty() || !summary.getUpdatedFiles().isEmpty()) {
+                StringBuilder telegramMessage = new StringBuilder("\uD83D\uDCC4_" + course.getName() + "_\uD83D\uDCC4\n");
+                if (!summary.getNewFiles().isEmpty()) {
+                    telegramMessage.append("*Neue Dateien verfügbar*\n");
+                    for (StudIPFile file : summary.getNewFiles()) {
+                        telegramMessage.append("`").append(file.getName()).append("`\n");
+                    }
+                    if (!summary.getUpdatedFiles().isEmpty()) telegramMessage.append("\n");
+                }
+                if (!summary.getUpdatedFiles().isEmpty()) {
+                    telegramMessage.append("*Aktualisierte Dateien verfügbar*\n");
+                    for (StudIPFile file : summary.getUpdatedFiles()) {
+                        telegramMessage.append("`").append(file.getName()).append("`\n");
+                    }
+                }
+                TelegramBot telegramBot = getTelegramBotForCourse(course);
+                int telegramChatId = getTelegramChatForCourse(course);
+                try {
+                    telegramBot.sendMessage(telegramChatId, telegramMessage.toString(), TelegramApi.parseMode.MARKDOWN);
+                } catch (de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.telegram.api.RequestException e) {
+                    try {
+                        telegramBot.sendMessage(telegramChatId, "\uD83D\uDCF0_" + course.getName() + "_\uD83D\uDCF0\n" + "_Die Nachricht kann nicht in einer Telegramnachricht angezeigt werden._\nZusammenfassung:\nAktualisierte Dateien: " + summary.getUpdatedFiles().size() + "\nNeue Dateien: " + summary.getNewFiles().size(), TelegramApi.parseMode.MARKDOWN);
+                    } catch (
+                            de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.telegram.api.RequestException ex) {
+                        //When both failed, log error
+                        Sout("ERROR -> Could not send Telegram Message: " + ex.getErrorMessage());
+                    }
+                }
+            }
+
+
+            studIPBot.resetUpdateSummary();
         }
 
         config.setStartTime(new Date().getTime());

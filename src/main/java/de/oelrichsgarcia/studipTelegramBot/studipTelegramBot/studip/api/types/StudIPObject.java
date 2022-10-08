@@ -13,6 +13,14 @@ public abstract class StudIPObject {
     private Date updated;
     private StudIPObject parent;
 
+    private boolean readable;
+
+    /**
+     * Instantiates a new Stud ip object.
+     */
+    public StudIPObject() {
+    }
+
     /**
      * Instantiates a new Object.
      *
@@ -27,18 +35,20 @@ public abstract class StudIPObject {
     /**
      * Instantiates a new Object.
      *
-     * @param id      the id
-     * @param name    the name
-     * @param created the created
-     * @param updated the updated
-     * @param parent  the parent
+     * @param id       the id
+     * @param name     the name
+     * @param created  the created
+     * @param updated  the updated
+     * @param parent   the parent
+     * @param readable the readable
      */
-    public StudIPObject(String id, String name, Date created, Date updated, StudIPObject parent) {
+    public StudIPObject(String id, String name, Date created, Date updated, StudIPObject parent, Boolean readable) {
         this.id = id;
         this.name = name;
         this.created = created;
         this.updated = updated;
         this.parent = parent;
+        this.readable = readable;
     }
 
     /**
@@ -129,5 +139,23 @@ public abstract class StudIPObject {
      */
     public void setParent(StudIPObject parent) {
         this.parent = parent;
+    }
+
+    /**
+     * Is readable boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isReadable() {
+        return readable;
+    }
+
+    /**
+     * Sets readable.
+     *
+     * @param readable the readable
+     */
+    public void setReadable(boolean readable) {
+        this.readable = readable;
     }
 }

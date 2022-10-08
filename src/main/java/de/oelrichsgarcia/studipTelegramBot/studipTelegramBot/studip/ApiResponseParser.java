@@ -160,7 +160,11 @@ public class ApiResponseParser {
     }
 
     private static StudIPFolder parseFolder(JSONObject json, StudIPFolder parent) {
-        StudIPFolder studIPFolder = new StudIPFolder(json.getString("id"), parent);
+        StudIPFolder studIPFolder = new StudIPFolder();
+        studIPFolder.setParent(parent);
+        studIPFolder.setReadable(json.getBoolean("is_readable"));
+        if (!studIPFolder.isReadable()) return studIPFolder;
+
         studIPFolder.setId(json.getString("id"));
         studIPFolder.setName(json.getString("name"));
         studIPFolder.setCreated(new Date(json.getLong("mkdate") * 1000));
@@ -169,7 +173,11 @@ public class ApiResponseParser {
     }
 
     private static StudIPFile parseFile(JSONObject json, StudIPFolder parent) {
-        StudIPFile studIPFile = new StudIPFile(json.getString("id"), parent);
+        StudIPFile studIPFile = new StudIPFile();
+        studIPFile.setParent(parent);
+        studIPFile.setReadable(json.getBoolean("is_readable"));
+        studIPFile.setDownloadable(json.getBoolean("is_downloadable"));
+        if (!studIPFile.isReadable()) return studIPFile;
         studIPFile.setId(json.getString("id"));
         studIPFile.setName(json.getString("name"));
         studIPFile.setCreated(new Date(json.getLong("mkdate") * 1000));

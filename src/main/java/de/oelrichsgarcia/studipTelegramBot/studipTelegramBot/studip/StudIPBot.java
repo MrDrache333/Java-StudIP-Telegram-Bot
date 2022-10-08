@@ -31,6 +31,8 @@ public class StudIPBot {
     private final RestAPI restapi;
     private boolean loggedIn;
 
+    private FileUpdateSummary updateSummary;
+
     /**
      * Instantiates a new Stud ip bot.
      *
@@ -42,6 +44,7 @@ public class StudIPBot {
         this.user = user;
         restapi = new RestAPI(uni.getApi(), user.getCredentials());
         this.loggedIn = false;
+        this.updateSummary = new FileUpdateSummary();
     }
 
     /**
@@ -208,9 +211,11 @@ public class StudIPBot {
         //Parse every Folder and Subfolder and add all elements to the Root Folder
         ApiResponseParser.parseFolders(folders, folder).forEach(f -> {
             try {
-                fetchFilesForFolder(f);
-                //Some Recursivenes
-                fetchSubFoldersAndFiles(f);
+                if (f.isReadable()) {
+                    fetchFilesForFolder(f);
+                    //Some Recursivenes
+                    fetchSubFoldersAndFiles(f);
+                }
                 folder.addChild(f);
             } catch (MalformedURLException | RequestException e) {
                 throw new RuntimeException(e);
@@ -243,6 +248,8 @@ public class StudIPBot {
 
                 String fileSize = "";
                 StudIPFile studIPFile = (StudIPFile) object;
+                //If it's not downloadable continue
+                if (!studIPFile.isDownloadable()) continue;
                 if (studIPFile.getFileSize() > 1000000) fileSize = studIPFile.getFileSize() / 1000000 + " MB";
                 else if (studIPFile.getFileSize() > 1000) fileSize = studIPFile.getFileSize() / 1000 + " KB";
 
@@ -251,15 +258,34 @@ public class StudIPBot {
                     if (object.getUpdated().getTime() > file.lastModified()) {
                         Sout("Updating outdated file " + basePath + "/" + object.getName() + " " + fileSize);
                         downloadFile((StudIPFile) object, basePath);
+                        updateSummary.addUpdatedFile((StudIPFile) object);
+
                     }
                 } else {
                     Sout("Downloading new file " + basePath + "/" + object.getName() + " " + fileSize);
                     downloadFile((StudIPFile) object, basePath);
+                    updateSummary.addNewFile((StudIPFile) object);
                 }
             }
 
         }
 
+    }
+
+    /**
+     * Reset update summary.
+     */
+    public void resetUpdateSummary() {
+        updateSummary = new FileUpdateSummary();
+    }
+
+    /**
+     * Get update summary file update summary.
+     *
+     * @return the file update summary
+     */
+    public FileUpdateSummary getUpdateSummary() {
+        return updateSummary;
     }
 
     private void downloadFile(StudIPFile file, Path path) {
