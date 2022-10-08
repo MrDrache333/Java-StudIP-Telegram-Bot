@@ -1,0 +1,5 @@
+services:
+  studipBot:
+    image: mrdrache333/studip-telegram:api-alpha
+    volumes:
+      - ./data:/data

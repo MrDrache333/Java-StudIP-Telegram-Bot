@@ -1,0 +1,11 @@
+api_endpoint: https://deineuni.de/api.php
+api_password: "password"
+api_username: "user"
+blacklist: [
+]
+courseConfigs: { }
+downloadFolder: "Files"
+startTime: 0
+telegramConfig:
+  chatId: 1234
+  token: 1234:1234
