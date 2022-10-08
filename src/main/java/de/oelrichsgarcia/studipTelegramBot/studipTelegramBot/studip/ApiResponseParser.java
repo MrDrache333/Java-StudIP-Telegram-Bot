@@ -20,7 +20,7 @@ public class ApiResponseParser {
      * @param response the response
      * @return the array list
      */
-    public static ArrayList<Course> parseCourse(RequestResponse response) {
+    public static ArrayList<Course> parseCourses(RequestResponse response) {
         if (response == null || response.getResponseMessage() == null) return new ArrayList<>();
         JSONObject json = new JSONObject(response.getResponseMessage());
 
@@ -31,19 +31,20 @@ public class ApiResponseParser {
         } catch (JSONException e) {
             return new ArrayList<>();
         }
-        collection.keySet().forEach(k -> {
-            JSONObject courseJson = collection.getJSONObject(k);
-            Course course = new Course(courseJson.getString("title"));
-            course.setId(courseJson.getString("course_id"));
-            course.setStartSemester(courseJson.getString("start_semester").substring(courseJson.getString("start_semester").lastIndexOf("/") + 1));
-            try {
-                course.setEndSemester(courseJson.getString("end_semester").substring(courseJson.getString("end_semester").lastIndexOf("/") + 1));
-            } catch (JSONException e) {
-                course.setEndSemester("");
-            }
-            courses.add(course);
-        });
+        collection.keySet().forEach(k -> courses.add(parseCourse(collection.getJSONObject(k))));
         return courses;
+    }
+
+    private static Course parseCourse(JSONObject courseJson) {
+        Course course = new Course(courseJson.getString("title"));
+        course.setId(courseJson.getString("course_id"));
+        course.setStartSemester(courseJson.getString("start_semester").substring(courseJson.getString("start_semester").lastIndexOf("/") + 1));
+        try {
+            course.setEndSemester(courseJson.getString("end_semester").substring(courseJson.getString("end_semester").lastIndexOf("/") + 1));
+        } catch (JSONException e) {
+            course.setEndSemester("");
+        }
+        return course;
     }
 
     /**
@@ -64,16 +65,19 @@ public class ApiResponseParser {
         }
         collection.keySet().forEach(s -> {
             JSONObject semesterJson = collection.getJSONObject(s);
-            Semester semester = new Semester();
-            semester.setId(semesterJson.getString("id"));
-            semester.setTitle(semesterJson.getString("title"));
-            semester.setToken(semesterJson.getString("token"));
-            semester.setBegin(new Date(semesterJson.getLong("begin") * 1000));
-            semester.setEnd(new Date(semesterJson.getLong("end") * 1000));
-
-            semesters.add(semester);
+            semesters.add(parseSemester(semesterJson));
         });
         return semesters;
+    }
+
+    private static Semester parseSemester(JSONObject semesterJson) {
+        Semester semester = new Semester();
+        semester.setId(semesterJson.getString("id"));
+        semester.setTitle(semesterJson.getString("title"));
+        semester.setToken(semesterJson.getString("token"));
+        semester.setBegin(new Date(semesterJson.getLong("begin") * 1000));
+        semester.setEnd(new Date(semesterJson.getLong("end") * 1000));
+        return semester;
     }
 
     /**
@@ -82,7 +86,7 @@ public class ApiResponseParser {
      * @param response the response
      * @return the array list
      */
-    public static ArrayList<News> parseNews(RequestResponse response) {
+    public static ArrayList<News> parseAllNews(RequestResponse response) {
         if (response == null || response.getResponseMessage() == null) return new ArrayList<>();
         JSONObject json = new JSONObject(response.getResponseMessage());
         ArrayList<News> news = new ArrayList<>();
@@ -94,14 +98,18 @@ public class ApiResponseParser {
         }
         collection.keySet().forEach(c -> {
             JSONObject newsJson = collection.getJSONObject(c);
-            News news1 = new News();
-            news1.setId(newsJson.getString("news_id"));
-            news1.setTopic(newsJson.getString("topic"));
-            news1.setHtml(newsJson.getString("body_html"));
-            news1.setDate(new Date(newsJson.getLong("date") * 1000));
-            news1.setAuthor_id(newsJson.getString("user_id"));
-            news.add(news1);
+            news.add(parseNews(newsJson));
         });
+        return news;
+    }
+
+    private static News parseNews(JSONObject newsJson) {
+        News news = new News();
+        news.setId(newsJson.getString("news_id"));
+        news.setTopic(newsJson.getString("topic"));
+        news.setHtml(newsJson.getString("body_html"));
+        news.setDate(new Date(newsJson.getLong("date") * 1000));
+        news.setAuthor_id(newsJson.getString("user_id"));
         return news;
     }
 

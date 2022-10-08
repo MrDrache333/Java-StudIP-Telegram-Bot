@@ -18,21 +18,20 @@ public class TelegramApi {
 
     public void sendMessage(JSONObject payload) throws RequestException {
         if (token.equals("")) throw new NullPointerException("Telegram BotToken must not be Null");
-        httpPost(payload.toString(), "sendMessage");
+        httpPost(payload.toString());
 
     }
 
     /**
      * Function to Push the Content of the given Data to the http endpoint
      *
-     * @param Data       The Data
-     * @param methodName The Method Name
+     * @param Data The Data
      */
-    private void httpPost(String Data, String methodName) throws RequestException {
+    private void httpPost(String Data) throws RequestException {
         //Nachricht senden, wenn sie gesendet werden soll
         try {
             //URL erstellen, HTTP Post mit übergebenen Daten durchführen
-            URL url = new URL("https://api.telegram.org/bot" + token + "/" + methodName);
+            URL url = new URL("https://api.telegram.org/bot" + token + "/" + "sendMessage");
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
             conn.setConnectTimeout(5000);
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
@@ -59,42 +58,6 @@ public class TelegramApi {
         }
 
     }
-
-    private String httpGet(String methodName) throws RequestException {
-        //Nachricht senden, wenn sie gesendet werden soll
-        try {
-            //URL erstellen, HTTP Post mit übergebenen Daten durchführen
-            URL url = new URL("https://api.telegram.org/bot" + token + "/" + methodName);
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.setConnectTimeout(5000);
-            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            conn.setDoOutput(false);
-            conn.setDoInput(true);
-            conn.setRequestMethod("GET");
-
-            //Antwortnachricht lesen
-            int responseCode = conn.getResponseCode();
-            String responseMessage = conn.getResponseMessage();
-
-            if (responseCode != 200) {
-                throw new RequestException(responseCode, responseMessage);
-            }
-
-            conn.disconnect();
-        } catch (IOException ignored) {
-        }
-        return null;
-    }
-
-    /**
-     * Gets updates.
-     *
-     * @return the updates
-     */
-    public String getUpdates() throws RequestException {
-        return httpGet("getUpdates");
-    }
-
 
     /**
      * The enum Parse mode.

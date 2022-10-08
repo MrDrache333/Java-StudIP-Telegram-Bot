@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import static de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.utils.Debugger.printDebug;
+import static de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.utils.Debugger.DOut;
 import static de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.utils.Debugger.writeerror;
 
 /**
@@ -119,7 +119,7 @@ public class Settings {
             loaded = false;
         }
         //Debugging
-        if (!loaded) printDebug("ERROR", "Faild to Load Settings in " + this.Savefile.getAbsolutePath());
+        if (!loaded) DOut("ERROR", "Faild to Load Settings in " + this.Savefile.getAbsolutePath());
         return loaded;
     }
 

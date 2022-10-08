@@ -22,10 +22,9 @@ import java.nio.file.Path;
  */
 public class RestAPI {
 
+    private final Downloader downloader;
     private Credentials credentials;
     private URL endpoint;
-
-    private final Downloader downloader;
 
     /**
      * Instantiates a new Rest.

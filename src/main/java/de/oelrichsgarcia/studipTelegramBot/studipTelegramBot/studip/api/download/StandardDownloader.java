@@ -21,7 +21,6 @@ public class StandardDownloader implements Downloader {
 
     private static final int BUFFER_SIZE = 1024000000;
     private static int downloadCount = 0;
-    private static long downloadSizeSum = 0;
 
     private final Credentials credentials;
 
@@ -74,7 +73,6 @@ public class StandardDownloader implements Downloader {
                 outputStream.close();
                 inputStream.close();
                 downloadCount++;
-                downloadSizeSum += file.getFileSize();
             } else
                 throw new DownloadException(status, con.getResponseMessage());
             con.disconnect();

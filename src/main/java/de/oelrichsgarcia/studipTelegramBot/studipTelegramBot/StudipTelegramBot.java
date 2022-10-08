@@ -31,7 +31,6 @@ public class StudipTelegramBot {
     private final Config config;
 
     private Uni uni;
-    private User user;
 
     private StudIPBot studIPBot;
 
@@ -69,7 +68,7 @@ public class StudipTelegramBot {
         }
 
         uni = new Uni(new URL(config.getApi_endpoint()));
-        user = new User();
+        User user = new User();
         user.setCredentials(new Credentials(config.getApi_username(), config.getApi_password()));
         studIPBot = new StudIPBot(uni, user);
 

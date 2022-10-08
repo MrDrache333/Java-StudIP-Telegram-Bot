@@ -103,7 +103,7 @@ public class StudIPBot {
             RequestResponse response = restapi.fetchUserModules(user.getUserId());
             //Set Userinformations
 
-            user.setKurse(ApiResponseParser.parseCourse(response));
+            user.setKurse(ApiResponseParser.parseCourses(response));
         } else throw new NotLoggedInException();
     }
 
@@ -169,7 +169,7 @@ public class StudIPBot {
     public void fetchNewsForCourse(Course course) throws IOException, RequestException, NotLoggedInException {
         if (loggedIn) {
             RequestResponse response = restapi.fetchCourseNews(course.getId());
-            course.setNews(ApiResponseParser.parseNews(response));
+            course.setNews(ApiResponseParser.parseAllNews(response));
         } else throw new NotLoggedInException();
     }
 

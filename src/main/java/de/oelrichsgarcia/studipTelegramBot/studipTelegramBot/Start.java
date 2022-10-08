@@ -18,7 +18,6 @@ import static de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.utils.Debugg
  * The type Hauptklasse.
  */
 public class Start {
-    private static StudipTelegramBot studipTelegramBot;
 
 
     /**
@@ -38,7 +37,7 @@ public class Start {
         YAMLConfigHandler configHandler = YAMLConfigHandler.getInstance();
         Config config = configHandler.loadConfig();
 
-        studipTelegramBot = new StudipTelegramBot(config);
+        StudipTelegramBot studipTelegramBot = new StudipTelegramBot(config);
         studipTelegramBot.initialize();
 
         studipTelegramBot.update();
