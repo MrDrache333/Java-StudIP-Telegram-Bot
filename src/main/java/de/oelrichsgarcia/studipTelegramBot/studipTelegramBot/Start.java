@@ -4,6 +4,7 @@ import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.config.Config;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.config.YAMLConfigHandler;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.LoginException;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.NotLoggedInException;
+import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.download.StandardDownloader;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.request.AuthenticatedAPIRequest;
 
 import java.io.File;
@@ -16,7 +17,7 @@ import static de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.utils.Debugg
 /**
  * The type Hauptklasse.
  */
-public class main {
+public class Start {
     private static StudipTelegramBot studipTelegramBot;
 
 
@@ -42,8 +43,9 @@ public class main {
 
         studipTelegramBot.update();
 
-        Sout("Finished! Time spend: " + new SimpleDateFormat("ss").format(new Date().getTime() - startTime.getTime()) + " Seconds");
-        Sout("Requests made: " + AuthenticatedAPIRequest.requests);
+        Sout("Finished! Time spend: " + new SimpleDateFormat("ssss").format(new Date().getTime() - startTime.getTime()) + " Seconds");
+        Sout("API-Requests made: " + AuthenticatedAPIRequest.requests);
+        Sout("Downloads made: " + StandardDownloader.getDownloadCount());
         configHandler.dumpConfig(config, YAMLConfigHandler.configPath);
 
     }

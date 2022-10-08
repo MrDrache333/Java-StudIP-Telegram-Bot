@@ -18,7 +18,7 @@ public class YAMLConfigHandler {
     /**
      * The constant configPath.
      */
-    public static final Path configPath = Paths.get("./config.yml");
+    public static final Path configPath = Paths.get("./data/config.yml");
     private static YAMLConfigHandler yamlConfigHandler;
 
     /**

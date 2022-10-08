@@ -1,5 +1,5 @@
-FROM java:8
+FROM ibmjava:8
 WORKDIR /
-ADD out/artifacts/StudIP_Telegram_jar/StudIP-Telegram.jar StudIP-Telegram.jar
-RUN mkdir -p /StudIP/Files/
+ADD target/StudIP-Telegram-1.0-SNAPSHOT.jar StudIP-Telegram.jar
+RUN mkdir -p /data
 CMD java -jar StudIP-Telegram.jar

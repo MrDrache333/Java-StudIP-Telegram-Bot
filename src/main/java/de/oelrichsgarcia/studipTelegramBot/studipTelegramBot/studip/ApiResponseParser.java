@@ -174,6 +174,7 @@ public class ApiResponseParser {
         studIPFile.setName(json.getString("name"));
         studIPFile.setCreated(new Date(json.getLong("mkdate") * 1000));
         studIPFile.setUpdated(new Date(json.getLong("chdate") * 1000));
+        studIPFile.setFileSize(json.getLong("size"));
         return studIPFile;
     }
 }

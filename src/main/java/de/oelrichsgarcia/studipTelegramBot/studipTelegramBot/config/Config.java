@@ -13,7 +13,7 @@ public class Config {
     private String api_endpoint;
     private String api_username;
     private String api_password;
-    private String downloadFolder = "/";
+    private String downloadFolder = "Files";
     private Long startTime = 0L;
     private Map<String, CourseConfig> courseConfigs = new HashMap<>();
     private TelegramConfig telegramConfig = new TelegramConfig();

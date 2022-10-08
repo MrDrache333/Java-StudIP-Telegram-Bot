@@ -14,6 +14,7 @@ import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.telegram.api.Telegr
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
@@ -134,11 +135,15 @@ public class StudipTelegramBot {
             //Apply Custom settings
             Optional<CourseConfig> courseConfig = Optional.ofNullable(config.getCourseConfigs().get(course.getId()));
             boolean downloadFiles = true;
+            String downloadpath = course.getName();
             boolean sendNews = true;
             if (courseConfig.isPresent()) {
                 CourseConfig currentCourseConfig = courseConfig.get();
                 if (currentCourseConfig.getName() != null) {
                     course.setName(currentCourseConfig.getName());
+                }
+                if (currentCourseConfig.getFolderName() != null) {
+                    downloadpath = currentCourseConfig.getFolderName();
                 }
                 downloadFiles = currentCourseConfig.isDownloadFiles();
                 sendNews = currentCourseConfig.isSendNews();
@@ -150,13 +155,13 @@ public class StudipTelegramBot {
             //Fetch and handle news of course
             if (sendNews) {
                 studIPBot.fetchNewsForCourse(course);
-                handleNews(course);
+                filterAndSendNews(course);
             }
 
             //Fetch and handle files of course
             if (downloadFiles) {
-                studIPBot.fetchFilesForCourse(course);
-                handleFiles(course);
+                studIPBot.fetchFileStructureForCourse(course);
+                createFoldersAndDownloadFiles(course, downloadpath);
             }
         }
 
@@ -172,11 +177,13 @@ public class StudipTelegramBot {
         config.setCourseConfigs(newCourseConfigs);
     }
 
-    private void handleFiles(Course course) {
+    private void createFoldersAndDownloadFiles(Course course, String downloadpath) {
+        //if (!course.getRootFolder().getChilds().isEmpty())
+        studIPBot.downloadFilesAndCreateFolders(course.getRootFolder().getChilds(), Paths.get("data/" + config.getDownloadFolder() + "/" + downloadpath + "/"));
 
     }
 
-    private void handleNews(Course course) {
+    private void filterAndSendNews(Course course) {
         //Check whether new news are available or not
         if (course.getNews() != null && !course.getNews().isEmpty()) {
             ArrayList<News> news = course.getNews();

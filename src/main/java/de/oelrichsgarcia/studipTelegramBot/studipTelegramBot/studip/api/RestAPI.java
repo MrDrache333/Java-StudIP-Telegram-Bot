@@ -1,16 +1,21 @@
 package de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api;
 
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.LoginException;
+import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.download.DownloadException;
+import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.download.Downloader;
+import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.download.StandardDownloader;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.request.AuthenticatedAPIRequest;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.request.RequestException;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.request.RequestResponse;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.types.Credentials;
+import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.types.StudIPFile;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
 
 /**
  * The type Rest.
@@ -19,6 +24,8 @@ public class RestAPI {
 
     private Credentials credentials;
     private URL endpoint;
+
+    private final Downloader downloader;
 
     /**
      * Instantiates a new Rest.
@@ -33,6 +40,7 @@ public class RestAPI {
             } catch (MalformedURLException ignored) {
             }
         }
+        this.downloader = new StandardDownloader(credentials);
         this.endpoint = endPoint;
         this.credentials = credentials;
     }
@@ -158,6 +166,10 @@ public class RestAPI {
         } else {
             return handlePagination(response);
         }
+    }
+
+    public void downloadFile(StudIPFile file, Path path) throws DownloadException, MalformedURLException {
+        downloader.downloadFile(new URL(endpoint.toString() + "file/" + file.getId() + "/download"), file, path);
     }
 
     private RequestResponse handlePagination(RequestResponse response) throws MalformedURLException, RequestException {

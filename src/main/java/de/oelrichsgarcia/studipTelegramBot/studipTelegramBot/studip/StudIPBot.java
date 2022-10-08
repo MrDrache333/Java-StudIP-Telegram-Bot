@@ -1,6 +1,7 @@
 package de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip;
 
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.RestAPI;
+import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.download.DownloadException;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.request.RequestException;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.request.RequestResponse;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.types.*;
@@ -8,8 +9,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.NoSuchElementException;
@@ -40,6 +44,12 @@ public class StudIPBot {
         this.loggedIn = false;
     }
 
+    /**
+     * Read studip config.
+     *
+     * @throws IOException      the io exception
+     * @throws RequestException the request exception
+     */
     public void readStudipConfig() throws IOException, RequestException {
         Sout("Trying to read StudIP-Config with API-EndPoint at " + restapi.getEndpoint().toString());
         RequestResponse response = restapi.fetchSettings();
@@ -110,6 +120,7 @@ public class StudIPBot {
             Semester currentSemester = null;
             for (Semester semester : uni.getSemesters()) {
                 Long date = new Date().getTime();
+                date = 1656932718L * 1000;
                 if (semester.getBegin().getTime() < date && semester.getEnd().getTime() > date) {
                     currentSemester = semester;
                     break;
@@ -167,7 +178,7 @@ public class StudIPBot {
      * @throws RequestException     the request exception
      * @throws NotLoggedInException the not logged in exception
      */
-    public void fetchFilesForCourse(Course course) throws IOException, RequestException, NotLoggedInException {
+    public void fetchFileStructureForCourse(Course course) throws IOException, RequestException, NotLoggedInException {
         if (loggedIn) {
             RequestResponse response = restapi.fetchCoursesTopFolder(course.getId());
             course.setRootFolder(ApiResponseParser.parseTopFolder(response));
@@ -213,6 +224,61 @@ public class StudIPBot {
         RequestResponse response = restapi.fetchFolderFiles(folder.getId());
         ApiResponseParser.parseFiles(new JSONObject(response.getResponseMessage()).getJSONArray("collection"), folder).forEach(folder::addChild);
     }
+
+    /**
+     * Download files and create folders.
+     *
+     * @param objects  the objects
+     * @param basePath the base path
+     */
+    public void downloadFilesAndCreateFolders(ArrayList<StudIPObject> objects, Path basePath) {
+        checkAndCreateFolder(basePath);
+        for (StudIPObject object : objects) {
+            //If it's a Folder
+            if (object instanceof StudIPFolder) {
+                downloadFilesAndCreateFolders(((StudIPFolder) object).getChilds(), Paths.get(basePath + "/" + object.getName() + "/"));
+            } else {
+                //If it's a FIle
+                File file = new File(basePath + "/" + object.getName());
+
+                String fileSize = "";
+                StudIPFile studIPFile = (StudIPFile) object;
+                if (studIPFile.getFileSize() > 1000000) fileSize = studIPFile.getFileSize() / 1000000 + " MB";
+                else if (studIPFile.getFileSize() > 1000) fileSize = studIPFile.getFileSize() / 1000 + " KB";
+
+                if (file.exists()) {
+                    //Check if online version is newer then download
+                    if (object.getUpdated().getTime() > file.lastModified()) {
+                        Sout("Updating outdated file " + basePath + "/" + object.getName() + " " + fileSize);
+                        downloadFile((StudIPFile) object, basePath);
+                    }
+                } else {
+                    Sout("Downloading new file " + basePath + "/" + object.getName() + " " + fileSize);
+                    downloadFile((StudIPFile) object, basePath);
+                }
+            }
+
+        }
+
+    }
+
+    private void downloadFile(StudIPFile file, Path path) {
+        try {
+            restapi.downloadFile(file, path);
+        } catch (DownloadException | MalformedURLException e) {
+            Sout("Failed to download " + path + "/" + file.getName());
+        }
+    }
+
+    private void checkAndCreateFolder(Path path) {
+        File base = new File(path.toUri());
+        if (!base.exists()) {
+            if (!base.mkdirs()) {
+                Sout("Failed to create Directory " + path);
+            }
+        }
+    }
+
 
     /**
      * Gets uni.
