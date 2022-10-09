@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import static de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.googleDrive.driveFunctions.*;
 import static de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.utils.Debugger.Sout;
 
 /**
@@ -236,12 +237,16 @@ public class StudIPBot {
      * @param objects  the objects
      * @param basePath the base path
      */
-    public void downloadFilesAndCreateFolders(ArrayList<StudIPObject> objects, Path basePath) {
+    public void downloadFilesAndCreateFolders(ArrayList<StudIPObject> objects, Path basePath, boolean useGoogleDrive, String drive_root_folder) {
         checkAndCreateFolder(basePath);
         for (StudIPObject object : objects) {
             //If it's a Folder
             if (object instanceof StudIPFolder) {
-                downloadFilesAndCreateFolders(((StudIPFolder) object).getChilds(), Paths.get(basePath + "/" + object.getName() + "/"));
+                try {
+                    downloadFilesAndCreateFolders(((StudIPFolder) object).getChilds(), Paths.get(basePath + "/" + object.getName() + "/"), useGoogleDrive, drive_root_folder);
+                } catch (Exception e) {
+                    System.err.println("Could not get content of " + object.getName());
+                }
             } else {
                 //If it's a FIle
                 File file = new File(basePath + "/" + object.getName());
@@ -258,12 +263,18 @@ public class StudIPBot {
                     if (object.getUpdated().getTime() > file.lastModified()) {
                         Sout("Updating outdated file " + basePath + "/" + object.getName() + " " + fileSize);
                         downloadFile((StudIPFile) object, basePath);
+                        if(useGoogleDrive) {
+                            uploadToGoogleDrive((StudIPFile) object, basePath, drive_root_folder);
+                        }
                         updateSummary.addUpdatedFile((StudIPFile) object);
 
                     }
                 } else {
                     Sout("Downloading new file " + basePath + "/" + object.getName() + " " + fileSize);
                     downloadFile((StudIPFile) object, basePath);
+                    if(useGoogleDrive) {
+                        uploadToGoogleDrive((StudIPFile) object, basePath, drive_root_folder);
+                    }
                     updateSummary.addNewFile((StudIPFile) object);
                 }
             }
@@ -293,6 +304,54 @@ public class StudIPBot {
             restapi.downloadFile(file, path);
         } catch (DownloadException | MalformedURLException e) {
             Sout("Failed to download " + path + "/" + file.getName());
+        }
+    }
+
+    private void uploadToGoogleDrive(StudIPFile file, Path path, String drive_root_folder) {
+        try {
+            String fullPath = path.toString();
+            String currentParent = drive_root_folder;
+            String datei_ordnerDriveID = "";
+
+            // Create folder structure in Google Drive
+            while (!fullPath.equals("")) {
+                String subfolderTmp = "";
+                for (char ch : fullPath.toCharArray()) {
+
+                    fullPath = fullPath.substring(1);
+                    if (ch == '\\') {
+                        break;
+                    } else {
+                        subfolderTmp += ch;
+                    }
+                }
+
+                if (!subfolderTmp.equals("data") && !subfolderTmp.equals("Files")) {
+                    //if (debug) System.out.println("currentParent: " + currentParent + " - unterordnerTemp: " + unterordnerTemp);
+                    datei_ordnerDriveID = driveFolderExist(currentParent, subfolderTmp);
+                    currentParent = datei_ordnerDriveID;
+                    //if (debug) System.out.println("datei_ordnerDriveID: " + datei_ordnerDriveID);
+                }
+
+            }
+
+
+            String filepath = path.toString();
+            filepath = filepath.replaceAll("[\\.$|:|\"|<|>|?]", "");
+
+            //hier muss in Drive die Datei gelöscht und neu hochgeladen werden
+            String fileID = driveFileExist(datei_ordnerDriveID, file.getName(), filepath + "/" + file.getName(), false);
+            if (!fileID.equals("")) { //datei existiert
+                deleteDriveFile(fileID);
+            }
+
+            //Prüfen ob Datei in Drive existiert
+            //driveFileExist(datei_ordnerDriveID, file.getName(), "C:/Users/DD-Ga/Google Drive/_Uni/workspace/3. Semester/Java-StudIP-Telegram-Bot-Surface/" + kursname_ordner + "/" + filepath + file.getName());
+            driveFileExist(datei_ordnerDriveID, file.getName(), filepath + "/" + file.getName(), true);
+
+
+        } catch (Exception e) {
+            Sout("Failed to upload " + path + "/" + file.getName());
         }
     }
 
