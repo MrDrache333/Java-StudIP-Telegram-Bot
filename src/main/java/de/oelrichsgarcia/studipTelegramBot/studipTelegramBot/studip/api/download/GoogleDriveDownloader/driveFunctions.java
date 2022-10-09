@@ -1,4 +1,4 @@
-package de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.googleDrive;
+package de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.download.GoogleDriveDownloader;
 
 import com.google.api.client.http.AbstractInputStreamContent;
 import com.google.api.client.http.FileContent;
@@ -13,6 +13,16 @@ import java.util.Arrays;
 import java.util.List;
 
 public class driveFunctions {
+    /**
+     * Creates a new file in Google Drive
+     *
+     * @param googleFolderIdParent id of parent folder
+     * @param contentType          content type of new file
+     * @param customFileName       name of new file
+     * @param uploadStreamContent  content of file
+     * @return the created file
+     * @throws IOException
+     */
     private static com.google.api.services.drive.model.File _createGoogleFile(String googleFolderIdParent, String contentType, //
                                                                               String customFileName, AbstractInputStreamContent uploadStreamContent) throws IOException {
 
@@ -30,6 +40,16 @@ public class driveFunctions {
         return file;
     }
 
+    /**
+     * Creates a new file in Google Drive
+     *
+     * @param googleFolderIdParent id of parent folder
+     * @param contentType          content type of new file
+     * @param customFileName       name of new file
+     * @param uploadFile           content of file
+     * @return uploaded file
+     * @throws IOException
+     */
     public static com.google.api.services.drive.model.File createGoogleFile(String googleFolderIdParent, String contentType, //
                                                                             String customFileName, java.io.File uploadFile) throws IOException {
 
@@ -39,6 +59,12 @@ public class driveFunctions {
         return _createGoogleFile(googleFolderIdParent, contentType, customFileName, uploadStreamContent);
     }
 
+    /**
+     * Deletes a file
+     *
+     * @param fileID id of the file
+     * @throws IOException
+     */
     public static void deleteDriveFile(String fileID) throws IOException {
         Drive driveService = GoogleDriveUtils.getDriveService();
 
@@ -50,6 +76,13 @@ public class driveFunctions {
         }
     }
 
+    /**
+     * Returns the subfolders of a specific folder
+     *
+     * @param googleFolderIdParent parent folder id
+     * @return list with subfolder ids
+     * @throws IOException
+     */
     public static final List<com.google.api.services.drive.model.File> getGoogleSubFolders(String googleFolderIdParent) throws IOException {
         Drive driveService = GoogleDriveUtils.getDriveService();
 
@@ -79,6 +112,13 @@ public class driveFunctions {
         return list;
     }
 
+    /**
+     * Returns the files within a folder
+     *
+     * @param googleFolderIdParent parent folder id
+     * @return list with files
+     * @throws IOException
+     */
     public static final List<com.google.api.services.drive.model.File> getGoogleSubFolderFiles(String googleFolderIdParent) throws IOException {
         Drive driveService = GoogleDriveUtils.getDriveService();
 
@@ -99,6 +139,14 @@ public class driveFunctions {
         return list;
     }
 
+    /**
+     * Creates a Google Drive folder
+     *
+     * @param folderIdParent id of parent folder
+     * @param folderName     name of the folder
+     * @return File object with id & name fields will be assigned values
+     * @throws IOException
+     */
     public static final com.google.api.services.drive.model.File createGoogleFolder(String folderIdParent, String folderName) throws IOException {
 
         com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
@@ -120,6 +168,14 @@ public class driveFunctions {
         return file;
     }
 
+    /**
+     * Checks if a specific folder exists within Google Drive
+     *
+     * @param folderIdParent id of parent folder
+     * @param folderName     name of the folder
+     * @return driveFolderID
+     * @throws IOException
+     */
     public static String driveFolderExist(String folderIdParent, String folderName) throws IOException {
 
         List<com.google.api.services.drive.model.File> googleFolders = getGoogleSubFolders(folderIdParent);
@@ -151,6 +207,16 @@ public class driveFunctions {
         return driveFolderID;
     }
 
+    /**
+     * Checks if the specific file already exists and/or creates it, if flag is set
+     *
+     * @param folderIdParent id of parent folder
+     * @param fileName       name of new file
+     * @param filePath       path of the file
+     * @param upload         if the file shall be uploaded
+     * @return fileID, to proof success
+     * @throws IOException
+     */
     public static String driveFileExist(String folderIdParent, String fileName, String filePath, boolean upload) throws IOException {
         List<com.google.api.services.drive.model.File> googleFolderFiles = getGoogleSubFolderFiles(folderIdParent);
 
