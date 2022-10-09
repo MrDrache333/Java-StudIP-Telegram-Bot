@@ -124,7 +124,7 @@ public class StudIPBot {
             Semester currentSemester = null;
             for (Semester semester : uni.getSemesters()) {
                 Long date = new Date().getTime();
-                date = 1656932718L * 1000;
+                //date = 1656932718L * 1000;
                 if (semester.getBegin().getTime() < date && semester.getEnd().getTime() > date) {
                     currentSemester = semester;
                     break;
@@ -237,6 +237,7 @@ public class StudIPBot {
      * @param objects  the objects
      * @param basePath the base path
      */
+
     public void downloadFilesAndCreateFolders(ArrayList<StudIPObject> objects, Path basePath, boolean useGoogleDrive, String drive_root_folder) {
         checkAndCreateFolder(basePath);
         for (StudIPObject object : objects) {
@@ -363,7 +364,6 @@ public class StudIPBot {
             }
         }
     }
-
 
     /**
      * Gets uni.
