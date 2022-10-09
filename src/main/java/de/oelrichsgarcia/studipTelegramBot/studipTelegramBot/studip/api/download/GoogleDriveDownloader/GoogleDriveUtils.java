@@ -1,4 +1,4 @@
-package de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.googleDrive;
+package de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.download.GoogleDriveDownloader;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -24,7 +24,7 @@ public class GoogleDriveUtils {
 
     // Directory to store user credentials for this application.
     private static final java.io.File CREDENTIALS_FOLDER //
-            = new java.io.File("credentials");
+            = new java.io.File("data/google_drive_credentials");
     //= new java.io.File(System.getProperty("user.home"), "credentials");
 
     private static final String CLIENT_SECRET_FILE_NAME = "client_secret.json";

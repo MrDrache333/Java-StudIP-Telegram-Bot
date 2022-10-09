@@ -13,12 +13,11 @@ public class Config {
     private String api_endpoint;
     private String api_username;
     private String api_password;
-    private boolean use_google_drive;
-    private String drive_root_folder;
     private String downloadFolder = "Files";
     private Long startTime = 0L;
     private Map<String, CourseConfig> courseConfigs = new HashMap<>();
     private TelegramConfig telegramConfig = new TelegramConfig();
+    private GoogleDriveConfig googleDriveConfig = new GoogleDriveConfig();
     private List<String> blacklist = new ArrayList<>();
 
     /**
@@ -79,42 +78,6 @@ public class Config {
      */
     public void setApi_username(String api_username) {
         this.api_username = api_username;
-    }
-
-    /**
-     * Gets api drive root folder.
-     *
-     * @return the drive root folder
-     */
-    public String getDrive_root_folder() {
-        return drive_root_folder;
-    }
-
-    /**
-     * Sets drive root folder string
-     *
-     * @param drive_root_folder the folder id
-     */
-    public void setDrive_root_folder(String drive_root_folder) {
-        this.drive_root_folder = drive_root_folder;
-    }
-
-    /**
-     * Check if google drive shall be used
-     *
-     * @return true or false
-     */
-    public boolean isUse_google_drive() {
-        return use_google_drive;
-    }
-
-    /**
-     * Sets if google drive shall be used
-     *
-     * @param use_google_drive boolean
-     */
-    public void setUse_google_drive(boolean use_google_drive) {
-        this.use_google_drive = use_google_drive;
     }
 
     /**
@@ -187,6 +150,24 @@ public class Config {
      */
     public void setTelegramConfig(TelegramConfig telegramConfig) {
         this.telegramConfig = telegramConfig;
+    }
+
+    /**
+     * Gets Google Drive config.
+     *
+     * @return the telegram config
+     */
+    public GoogleDriveConfig getGoogleDriveConfig() {
+        return googleDriveConfig;
+    }
+
+    /**
+     * Sets Google Drive config.
+     *
+     * @param googleDriveConfig the Google Drive config
+     */
+    public void setGoogleDriveConfig(GoogleDriveConfig googleDriveConfig) {
+        this.googleDriveConfig = googleDriveConfig;
     }
 
     /**

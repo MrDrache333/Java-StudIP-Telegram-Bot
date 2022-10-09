@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import static de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.googleDrive.driveFunctions.*;
+import static de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.download.GoogleDriveDownloader.driveFunctions.*;
 import static de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.utils.Debugger.Sout;
 
 /**
