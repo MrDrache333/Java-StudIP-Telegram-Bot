@@ -1,3 +1,1 @@
 *.DS-Store
-/credentials/client_secret.json
-/credentials/StoredCredential

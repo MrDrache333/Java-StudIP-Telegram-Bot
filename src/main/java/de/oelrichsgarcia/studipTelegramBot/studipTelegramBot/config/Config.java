@@ -153,6 +153,15 @@ public class Config {
     }
 
     /**
+     * Gets Google Drive config.
+     *
+     * @return the telegram config
+     */
+    public GoogleDriveConfig getGoogleDriveConfig() {
+        return googleDriveConfig;
+    }
+
+    /**
      * Sets Google Drive config.
      *
      * @param googleDriveConfig the Google Drive config
