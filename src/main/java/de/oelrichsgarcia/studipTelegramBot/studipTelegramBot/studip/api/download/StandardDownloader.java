@@ -5,6 +5,7 @@ import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.types.St
 import org.apache.commons.codec.binary.Base64;
 
 import javax.net.ssl.HttpsURLConnection;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +13,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
+import static de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.utils.Debugger.Sout;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
@@ -46,6 +48,7 @@ public class StandardDownloader implements Downloader {
     @Override
     public void downloadFile(URL url, StudIPFile file, Path path) throws DownloadException {
         int status = 200;
+        checkAndCreateFolder(path);
         try {
             HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
             //Auth
@@ -79,6 +82,16 @@ public class StandardDownloader implements Downloader {
 
         } catch (IOException e) {
             throw new DownloadException(status, e.getMessage());
+        }
+    }
+
+    @Override
+    public void checkAndCreateFolder(Path path) {
+        File base = new File(path.toUri());
+        if (!base.exists()) {
+            if (!base.mkdirs()) {
+                Sout("Failed to create Directory " + path);
+            }
         }
     }
 }

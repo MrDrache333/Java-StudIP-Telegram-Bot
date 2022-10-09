@@ -8,4 +8,6 @@ import java.nio.file.Path;
 public interface Downloader {
 
     void downloadFile(URL url, StudIPFile file, Path path) throws DownloadException;
+
+    void checkAndCreateFolder(Path path);
 }

@@ -123,7 +123,7 @@ public class StudIPBot {
             Semester currentSemester = null;
             for (Semester semester : uni.getSemesters()) {
                 Long date = new Date().getTime();
-                date = 1656932718L * 1000;
+                //date = 1656932718L * 1000;
                 if (semester.getBegin().getTime() < date && semester.getEnd().getTime() > date) {
                     currentSemester = semester;
                     break;
@@ -237,7 +237,6 @@ public class StudIPBot {
      * @param basePath the base path
      */
     public void downloadFilesAndCreateFolders(ArrayList<StudIPObject> objects, Path basePath) {
-        checkAndCreateFolder(basePath);
         for (StudIPObject object : objects) {
             //If it's a Folder
             if (object instanceof StudIPFolder) {
@@ -295,16 +294,6 @@ public class StudIPBot {
             Sout("Failed to download " + path + "/" + file.getName());
         }
     }
-
-    private void checkAndCreateFolder(Path path) {
-        File base = new File(path.toUri());
-        if (!base.exists()) {
-            if (!base.mkdirs()) {
-                Sout("Failed to create Directory " + path);
-            }
-        }
-    }
-
 
     /**
      * Gets uni.
