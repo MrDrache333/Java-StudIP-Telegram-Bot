@@ -11,6 +11,7 @@ import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.request.
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.types.*;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.telegram.TelegramBot;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.telegram.api.TelegramApi;
+import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.utils.StringManipulator;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -135,7 +136,7 @@ public class StudipTelegramBot {
             //Apply Custom settings
             Optional<CourseConfig> courseConfig = Optional.ofNullable(config.getCourseConfigs().get(course.getId()));
             boolean downloadFiles = true;
-            String downloadpath = course.getName();
+            String downloadPath = StringManipulator.replaceSpecialChars(course.getName());
             boolean sendNews = true;
             if (courseConfig.isPresent()) {
                 CourseConfig currentCourseConfig = courseConfig.get();
@@ -143,7 +144,7 @@ public class StudipTelegramBot {
                     course.setName(currentCourseConfig.getName());
                 }
                 if (currentCourseConfig.getFolderName() != null) {
-                    downloadpath = currentCourseConfig.getFolderName();
+                    downloadPath = currentCourseConfig.getFolderName();
                 }
                 downloadFiles = currentCourseConfig.isDownloadFiles();
                 sendNews = currentCourseConfig.isSendNews();
@@ -161,7 +162,7 @@ public class StudipTelegramBot {
             //Fetch and handle files of course
             if (downloadFiles) {
                 studIPBot.fetchFileStructureForCourse(course);
-                createFoldersAndDownloadFiles(course, downloadpath);
+                createFoldersAndDownloadFiles(course, downloadPath);
             }
 
             //Create Summary and send via Telegram

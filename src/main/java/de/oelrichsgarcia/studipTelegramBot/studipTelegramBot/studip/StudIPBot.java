@@ -5,6 +5,7 @@ import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.download
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.request.RequestException;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.request.RequestResponse;
 import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.types.*;
+import de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.utils.StringManipulator;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -245,7 +246,7 @@ public class StudIPBot {
             //If it's a Folder
             if (object instanceof StudIPFolder) {
                 try {
-                    downloadFilesAndCreateFolders(((StudIPFolder) object).getChilds(), Paths.get(basePath + "/" + object.getName() + "/"), useGoogleDrive, drive_root_folder);
+                    downloadFilesAndCreateFolders(((StudIPFolder) object).getChilds(), Paths.get(basePath + "/" + StringManipulator.replaceSpecialChars(object.getName()) + "/"), useGoogleDrive, drive_root_folder);
                 } catch (Exception e) {
                     System.err.println("Could not get content of " + object.getName());
                 }
