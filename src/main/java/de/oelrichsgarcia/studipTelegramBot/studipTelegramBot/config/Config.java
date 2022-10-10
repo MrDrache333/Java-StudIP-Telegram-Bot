@@ -17,6 +17,7 @@ public class Config {
     private Long startTime = 0L;
     private Map<String, CourseConfig> courseConfigs = new HashMap<>();
     private TelegramConfig telegramConfig = new TelegramConfig();
+    private GoogleDriveConfig googleDriveConfig = new GoogleDriveConfig();
     private List<String> blacklist = new ArrayList<>();
 
     /**
@@ -149,6 +150,24 @@ public class Config {
      */
     public void setTelegramConfig(TelegramConfig telegramConfig) {
         this.telegramConfig = telegramConfig;
+    }
+
+    /**
+     * Gets Google Drive config.
+     *
+     * @return the telegram config
+     */
+    public GoogleDriveConfig getGoogleDriveConfig() {
+        return googleDriveConfig;
+    }
+
+    /**
+     * Sets Google Drive config.
+     *
+     * @param googleDriveConfig the Google Drive config
+     */
+    public void setGoogleDriveConfig(GoogleDriveConfig googleDriveConfig) {
+        this.googleDriveConfig = googleDriveConfig;
     }
 
     /**

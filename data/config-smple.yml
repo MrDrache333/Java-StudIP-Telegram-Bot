@@ -5,6 +5,9 @@ blacklist: [
 ]
 courseConfigs: { }
 downloadFolder: "Files"
+googleDrive:
+  enabled: false
+  rootDirectory: "Something"
 startTime: 0
 telegramConfig:
   chatId: 1234
