@@ -2,14 +2,13 @@ package de.oelrichsgarcia.studipTelegramBot.studipTelegramBot.studip.api.downloa
 
 import com.google.api.client.http.AbstractInputStreamContent;
 import com.google.api.client.http.FileContent;
-import com.google.api.client.util.DateTime;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.FileList;
 
 import java.io.IOException;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class driveFunctions {
@@ -21,7 +20,6 @@ public class driveFunctions {
      * @param customFileName       name of new file
      * @param uploadStreamContent  content of file
      * @return the created file
-     * @throws IOException
      */
     private static com.google.api.services.drive.model.File _createGoogleFile(String googleFolderIdParent, String contentType, //
                                                                               String customFileName, AbstractInputStreamContent uploadStreamContent) throws IOException {
@@ -29,15 +27,13 @@ public class driveFunctions {
         com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
         fileMetadata.setName(customFileName);
 
-        List<String> parents = Arrays.asList(googleFolderIdParent);
+        List<String> parents = Collections.singletonList(googleFolderIdParent);
         fileMetadata.setParents(parents);
         //
         Drive driveService = GoogleDriveUtils.getDriveService();
 
-        com.google.api.services.drive.model.File file = driveService.files().create(fileMetadata, uploadStreamContent)
+        return driveService.files().create(fileMetadata, uploadStreamContent)
                 .setFields("id, webContentLink, webViewLink, parents").execute();
-
-        return file;
     }
 
     /**
@@ -48,7 +44,6 @@ public class driveFunctions {
      * @param customFileName       name of new file
      * @param uploadFile           content of file
      * @return uploaded file
-     * @throws IOException
      */
     public static com.google.api.services.drive.model.File createGoogleFile(String googleFolderIdParent, String contentType, //
                                                                             String customFileName, java.io.File uploadFile) throws IOException {
@@ -63,7 +58,6 @@ public class driveFunctions {
      * Deletes a file
      *
      * @param fileID id of the file
-     * @throws IOException
      */
     public static void deleteDriveFile(String fileID) throws IOException {
         Drive driveService = GoogleDriveUtils.getDriveService();
@@ -77,19 +71,18 @@ public class driveFunctions {
     }
 
     /**
-     * Returns the subfolders of a specific folder
+     * Returns the folders of a specific folder
      *
      * @param googleFolderIdParent parent folder id
-     * @return list with subfolder ids
-     * @throws IOException
+     * @return list with sub-folder ids
      */
-    public static final List<com.google.api.services.drive.model.File> getGoogleSubFolders(String googleFolderIdParent) throws IOException {
+    public static List<com.google.api.services.drive.model.File> getGoogleSubFolders(String googleFolderIdParent) throws IOException {
         Drive driveService = GoogleDriveUtils.getDriveService();
 
         String pageToken = null;
-        List<com.google.api.services.drive.model.File> list = new ArrayList<com.google.api.services.drive.model.File>();
+        List<com.google.api.services.drive.model.File> list = new ArrayList<>();
 
-        String query = null;
+        String query;
         if (googleFolderIdParent == null) {
             query = " mimeType = 'application/vnd.google-apps.folder' " //
                     + " and 'root' in parents";
@@ -103,9 +96,7 @@ public class driveFunctions {
                     // Fields will be assigned values: id, name, createdTime
                     .setFields("nextPageToken, files(id, name, createdTime)")//
                     .setPageToken(pageToken).execute();
-            for (com.google.api.services.drive.model.File file : result.getFiles()) {
-                list.add(file);
-            }
+            list.addAll(result.getFiles());
             pageToken = result.getNextPageToken();
         } while (pageToken != null);
         //
@@ -117,22 +108,19 @@ public class driveFunctions {
      *
      * @param googleFolderIdParent parent folder id
      * @return list with files
-     * @throws IOException
      */
-    public static final List<com.google.api.services.drive.model.File> getGoogleSubFolderFiles(String googleFolderIdParent) throws IOException {
+    public static List<com.google.api.services.drive.model.File> getGoogleSubFolderFiles(String googleFolderIdParent) throws IOException {
         Drive driveService = GoogleDriveUtils.getDriveService();
 
-        String pageToken = null;
-        List<com.google.api.services.drive.model.File> list = new ArrayList<com.google.api.services.drive.model.File>();
+        String pageToken;
+        List<com.google.api.services.drive.model.File> list = new ArrayList<>();
 
-        String query = null;
+        String query;
         query = " mimeType != 'application/vnd.google-apps.folder' " + " and '" + googleFolderIdParent + "' in parents";
 
         do {
             FileList result = driveService.files().list().setQ(query).setFields("nextPageToken, files(id, name, createdTime, mimeType)").execute();
-            for (com.google.api.services.drive.model.File file : result.getFiles()) {
-                list.add(file);
-            }
+            list.addAll(result.getFiles());
             pageToken = result.getNextPageToken();
         } while (pageToken != null);
         //
@@ -145,9 +133,8 @@ public class driveFunctions {
      * @param folderIdParent id of parent folder
      * @param folderName     name of the folder
      * @return File object with id & name fields will be assigned values
-     * @throws IOException
      */
-    public static final com.google.api.services.drive.model.File createGoogleFolder(String folderIdParent, String folderName) throws IOException {
+    public static com.google.api.services.drive.model.File createGoogleFolder(String folderIdParent, String folderName) throws IOException {
 
         com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
 
@@ -155,7 +142,7 @@ public class driveFunctions {
         fileMetadata.setMimeType("application/vnd.google-apps.folder");
 
         if (folderIdParent != null) {
-            List<String> parents = Arrays.asList(folderIdParent);
+            List<String> parents = Collections.singletonList(folderIdParent);
 
             fileMetadata.setParents(parents);
         }
@@ -163,9 +150,8 @@ public class driveFunctions {
 
         // Create a Folder.
         // Returns File object with id & name fields will be assigned values
-        com.google.api.services.drive.model.File file = driveService.files().create(fileMetadata).setFields("id, name").execute();
 
-        return file;
+        return driveService.files().create(fileMetadata).setFields("id, name").execute();
     }
 
     /**
@@ -174,7 +160,6 @@ public class driveFunctions {
      * @param folderIdParent id of parent folder
      * @param folderName     name of the folder
      * @return driveFolderID
-     * @throws IOException
      */
     public static String driveFolderExist(String folderIdParent, String folderName) throws IOException {
 
@@ -183,7 +168,7 @@ public class driveFunctions {
 
         boolean driveFolderExist = false;
         String driveFolderID = "";
-        //prüfen ob im übergebenen verzeichnes der zu überprüfende ordner liegt
+        //prüfen, ob im übergebenen Verzeichnis der zu überprüfende ordner liegt
         for (com.google.api.services.drive.model.File folder : googleFolders) {
             // System.out.println("Folder ID: " + folder.getId() + " --- Name: " + folder.getName());
             if (folder.getName().equals(folderName)) {
@@ -215,35 +200,27 @@ public class driveFunctions {
      * @param filePath       path of the file
      * @param upload         if the file shall be uploaded
      * @return fileID, to proof success
-     * @throws IOException
      */
     public static String driveFileExist(String folderIdParent, String fileName, String filePath, boolean upload) throws IOException {
         List<com.google.api.services.drive.model.File> googleFolderFiles = getGoogleSubFolderFiles(folderIdParent);
 
-        //System.out.print("\n\t Filename: " + fileName + " Path: " + filePath);
         String mimeType = URLConnection.guessContentTypeFromName(fileName);
-        //System.out.print(" (" + mimeType + ")");
 
         boolean fileExist = false;
-        DateTime createdTime;
         String fileID = "";
         for (com.google.api.services.drive.model.File driveFile : googleFolderFiles) {
-            // System.out.println("Datei: " + driveFile.getName() + " --- Erstellt: " + driveFile.getCreatedTime());
             if (driveFile.getName().equals(fileName)) {
                 fileExist = true;
                 fileID = driveFile.getId();
-                createdTime = driveFile.getCreatedTime();
-                //System.out.print(" (existiert: " + createdTime + ")\n");
                 break;
             }
         }
 
-        if (!fileExist && upload == true) {
+        if (!fileExist && upload) {
             java.io.File uploadFile = new java.io.File(filePath);
             System.out.println("\n\t Filename: " + fileName + " Path: " + filePath + " (upload)");
             // Create Google File:
             com.google.api.services.drive.model.File googleFile = createGoogleFile(folderIdParent, mimeType, fileName, uploadFile);
-            //System.out.println(" : " + googleFile.getName() + " --- Erstellt: " + googleFile.getCreatedTime());
         }
         return fileID;
     }

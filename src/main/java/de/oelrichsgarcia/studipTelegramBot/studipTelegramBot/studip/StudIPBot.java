@@ -234,10 +234,11 @@ public class StudIPBot {
     /**
      * Download files and create folders.
      *
-     * @param objects  the objects
-     * @param basePath the base path
+     * @param objects           the objects
+     * @param basePath          the base path
+     * @param useGoogleDrive    the use google drive
+     * @param drive_root_folder the drive root folder
      */
-
     public void downloadFilesAndCreateFolders(ArrayList<StudIPObject> objects, Path basePath, boolean useGoogleDrive, String drive_root_folder) {
         checkAndCreateFolder(basePath);
         for (StudIPObject object : objects) {
@@ -316,29 +317,27 @@ public class StudIPBot {
 
             // Create folder structure in Google Drive
             while (!fullPath.equals("")) {
-                String subfolderTmp = "";
+                StringBuilder subfolderTmp = new StringBuilder();
                 for (char ch : fullPath.toCharArray()) {
 
                     fullPath = fullPath.substring(1);
                     if (ch == '\\') {
                         break;
                     } else {
-                        subfolderTmp += ch;
+                        subfolderTmp.append(ch);
                     }
                 }
 
-                if (!subfolderTmp.equals("data") && !subfolderTmp.equals("Files")) {
-                    //if (debug) System.out.println("currentParent: " + currentParent + " - unterordnerTemp: " + unterordnerTemp);
-                    datei_ordnerDriveID = driveFolderExist(currentParent, subfolderTmp);
+                if (!subfolderTmp.toString().equals("data") && !subfolderTmp.toString().equals("Files")) {
+                    datei_ordnerDriveID = driveFolderExist(currentParent, subfolderTmp.toString());
                     currentParent = datei_ordnerDriveID;
-                    //if (debug) System.out.println("datei_ordnerDriveID: " + datei_ordnerDriveID);
                 }
 
             }
 
 
             String filepath = path.toString();
-            filepath = filepath.replaceAll("[\\.$|:|\"|<|>|?]", "");
+            filepath = filepath.replaceAll("[.$|:\"<>?]", "");
 
             //hier muss in Drive die Datei gelöscht und neu hochgeladen werden
             String fileID = driveFileExist(datei_ordnerDriveID, file.getName(), filepath + "/" + file.getName(), false);
@@ -347,7 +346,6 @@ public class StudIPBot {
             }
 
             //Prüfen ob Datei in Drive existiert
-            //driveFileExist(datei_ordnerDriveID, file.getName(), "C:/Users/DD-Ga/Google Drive/_Uni/workspace/3. Semester/Java-StudIP-Telegram-Bot-Surface/" + kursname_ordner + "/" + filepath + file.getName());
             driveFileExist(datei_ordnerDriveID, file.getName(), filepath + "/" + file.getName(), true);
 
 
