@@ -1,4 +1,6 @@
 # Java-StudIP-Telegram-Bot
+![Maven](https://github.com/MrDrache333/Java-StudIP-Telegram-Bot/actions/workflows/maven.yml/badge.svg)
+![Docker](https://github.com/MrDrache333/Java-StudIP-Telegram-Bot/actions/workflows/docker-image.yml/badge.svg)
 
 Don't want to keep checking StudIP to see if there are any new announcements? Or checking every course to see if there
 are already new lecture slides, exercises or other files that you have to download manually afterwards?
