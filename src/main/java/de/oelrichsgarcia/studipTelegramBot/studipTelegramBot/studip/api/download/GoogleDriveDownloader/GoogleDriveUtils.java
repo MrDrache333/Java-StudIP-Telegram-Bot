@@ -31,7 +31,7 @@ public class GoogleDriveUtils {
             = new java.io.File("data/google_drive_credentials");
     //= new java.io.File(System.getProperty("user.home"), "credentials");
 
-    private static final String CLIENT_SECRET_FILE_NAME = "data/client_secret.json";
+    private static final String CLIENT_SECRET_FILE_NAME = "client_secret.json";
 
     private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE);
 
