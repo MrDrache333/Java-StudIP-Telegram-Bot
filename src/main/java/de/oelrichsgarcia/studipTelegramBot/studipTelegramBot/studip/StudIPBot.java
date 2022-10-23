@@ -245,6 +245,7 @@ public class StudIPBot {
         for (StudIPObject object : objects) {
             //If it's a Folder
             if (object instanceof StudIPFolder) {
+                if (!object.isReadable()) continue;
                 try {
                     downloadFilesAndCreateFolders(((StudIPFolder) object).getChilds(), Paths.get(basePath + "/" + StringManipulator.replaceSpecialChars(object.getName()) + "/"), useGoogleDrive, drive_root_folder);
                 } catch (Exception e) {
