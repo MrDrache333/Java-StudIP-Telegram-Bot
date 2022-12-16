@@ -323,7 +323,7 @@ public class StudIPBot {
                 for (char ch : fullPath.toCharArray()) {
 
                     fullPath = fullPath.substring(1);
-                    if (ch == '\\') {
+                    if (ch == '\\' || ch == '/') {
                         break;
                     } else {
                         subfolderTmp.append(ch);
@@ -353,6 +353,7 @@ public class StudIPBot {
 
         } catch (Exception e) {
             Sout("Failed to upload " + path + "/" + file.getName());
+            Sout(String.valueOf(e));
         }
     }
 
