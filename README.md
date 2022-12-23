@@ -5,25 +5,31 @@
 [![License](https://img.shields.io/badge/License-MIT-blue)](#license)
 [![issues - Java-StudIP-Telegram-Bot](https://img.shields.io/github/issues/MrDrache333/Java-StudIP-Telegram-Bot)](https://github.com/MrDrache333/Java-StudIP-Telegram-Bot/issues)
 
-Don't want to keep checking StudIP to see if there are any new announcements? Or checking every course to see if there
-are already new lecture slides, exercises or other files that you have to download manually afterwards?
-Here is the solution!
-Let your computer scan regularly for announcements and new/updated files of your courses you are currently studying and
-notify you immediately afterwards, and use the time you save more wisely.
+Keep track of updates and new materials for your courses on StudIP without constantly checking the platform. StudIP-Telegram is a Java-based bot that will scan your StudIP account for announcements and new/updated files in your current courses, and notify you through a Telegram chat using your own bot. It will also download new files and create a file structure similar to StudIP, making it easy to sync with a network-attached storage (NAS) device.
 
 <img alt="Telegram_01" src="Screenshots/Screenshot_Telegram_02.jpg" width="500px"/>
 
-## Overview
+## Features
 
-*What will this Bot do?*
+### Account Management
+- Logs in to your StudIP account using your stored credentials
+- Grabs account information, including a list of your current courses
 
-- It will simply login to your StudIP-Account using your Credentials (Stored locally)
-- It will grab your Accountinformation, Courses and Information about the Courses
-- It will verify that there are Updates avaiable (News or Files)
-- It will download new Files and create a Filesturcture analog to StudIP (Easy to Sync to NAS for example)
-- It will automatically format and push these Informations to a Telegram Chat using your own Bot
+### Course Management
+- Grabs information about your courses, including any announcements or updates
+- Downloads new files and creates a file structure similar to StudIP
+- Automatically formats and pushes course information to a Telegram chat
+
+### File Management
+- Downloads new files and creates a file structure similar to StudIP
+- Makes it easy to sync with a network-attached storage (NAS) device
+
+### Additional Features
+- Sends updates to a Telegram chat using your own bot
+- Provides a convenient way to track course updates without constantly checking StudIP
+- Allows you to manage your StudIP account and courses from a single location
  
- ### FAQ
+### FAQ
 
 Coming soon
 
