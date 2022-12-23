@@ -1,6 +1,9 @@
 # Java-StudIP-Telegram-Bot
 ![Maven](https://github.com/MrDrache333/Java-StudIP-Telegram-Bot/actions/workflows/maven.yml/badge.svg)
 ![Docker](https://github.com/MrDrache333/Java-StudIP-Telegram-Bot/actions/workflows/docker-image.yml/badge.svg)
+[![GitHub release](https://img.shields.io/github/release/MrDrache333/Java-StudIP-Telegram-Bot?include_prereleases=&sort=semver&color=blue)](https://github.com/MrDrache333/Java-StudIP-Telegram-Bot/releases/)
+[![License](https://img.shields.io/badge/License-MIT-blue)](#license)
+[![issues - Java-StudIP-Telegram-Bot](https://img.shields.io/github/issues/MrDrache333/Java-StudIP-Telegram-Bot)](https://github.com/MrDrache333/Java-StudIP-Telegram-Bot/issues)
 
 Don't want to keep checking StudIP to see if there are any new announcements? Or checking every course to see if there
 are already new lecture slides, exercises or other files that you have to download manually afterwards?
